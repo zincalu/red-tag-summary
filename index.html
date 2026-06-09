@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Red Tag Summary </title>
+    <title>Red Tag Summary – Final Fixed</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
@@ -12,8 +12,9 @@
         .dashboard { max-width: 1600px; margin: 0 auto; }
         .header { background: white; padding: 20px 25px; border-radius: 24px; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; }
         .header h1 { color: #1e6f5c; font-size: 1.8rem; }
-        .refresh-btn { background: #1e6f5c; color: white; border: none; padding: 10px 24px; border-radius: 40px; font-weight: 600; cursor: pointer; }
-        .refresh-btn:hover { background: #0e5243; }
+        .refresh-btn { background: #1e6f5c; color: white; border: none; padding: 10px 24px; border-radius: 40px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+        .refresh-btn:disabled { background: #95a5a6; cursor: not-allowed; opacity: 0.7; }
+        .refresh-btn:hover:not(:disabled) { background: #0e5243; }
         .last-updated { color: #4a6272; font-size: 0.8rem; margin-top: 6px; }
         .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 28px; }
         .kpi-card { background: white; padding: 20px; border-radius: 28px; display: flex; align-items: center; gap: 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
@@ -106,7 +107,7 @@
         <div class="table-wrapper">
             <table id="stockTable">
                 <thead><tr><th>No.</th><th>Category</th><th>Balance</th><th>Total IN</th><th>Total OUT</th><th>Status</th></tr></thead>
-                <tbody id="stockTableBody"><tr><td colspan="6" class="loading-placeholder">Loading...</td></tr></tbody>
+                <tbody id="stockTableBody"><tr><td colspan="6" class="loading-placeholder">Loading...<\/td></tr></tbody>
             </table>
         </div>
     </div>
@@ -132,7 +133,7 @@
         <div class="table-wrapper">
             <table id="transactionTable">
                 <thead><tr><th>No.</th><th>Date & Time</th><th>Name</th><th>Dept</th><th>Action</th><th>Item Type</th><th>Qty</th><th>Color</th><th>Size / Spec</th><th>Category</th><th>Photo</th></tr></thead>
-                <tbody id="transactionTableBody"><tr><td colspan="11" class="loading-placeholder">Loading...</td></tr></tbody>
+                <tbody id="transactionTableBody"><tr><td colspan="11" class="loading-placeholder">Loading...<\/td></tr></tbody>
             </table>
         </div>
     </div>
@@ -148,7 +149,9 @@
     let categoryStock = [];
     let pieChart, monthlyChart;
     let sortDescending = true;
+    let isLoading = false;   // prevent concurrent refreshes
 
+    // Helper: find column index
     function findColumn(headers, possibleNames) {
         for (let name of possibleNames) {
             let idx = headers.findIndex(h => h.toLowerCase().includes(name.toLowerCase()));
@@ -261,7 +264,7 @@
             if (action === "IN" && colQtyIn !== -1) qty = parseFloat(row[colQtyIn]) || 0;
             else if (action === "OUT" && colQtyOut !== -1) qty = parseFloat(row[colQtyOut]) || 0;
             if (qty === 0 && colGenericQty !== -1) qty = parseFloat(row[colGenericQty]) || 0;
-            if (qty === 0) qty = 1;   // default for rows like 82 & 83
+            if (qty === 0) qty = 1;   // default for rows with missing quantity
 
             let color = "";
             if (action === "IN" && colColorIn !== -1) color = row[colColorIn];
@@ -313,12 +316,22 @@
     }
 
     async function loadAllData() {
-        document.getElementById('stockTableBody').innerHTML = '<tr><td colspan="6" class="loading-placeholder"><i class="fas fa-spinner fa-pulse"></i> Loading from sheet...</td></tr>';
-        allTransactions = [];
-        const SHEET_URL = "https://docs.google.com/spreadsheets/d/1h9BZHvzaOpPgtVWfw81eWFQqG9btCM8Z1fQPx9-jPPA/export?format=csv&gid=878903588"; //change sheet URL "https://docs.google.com/spreadsheets/d/YOUR_SHEET_ID/export?format=csv&gid=YOUR_GID"
-        let loaded = false;
+        if (isLoading) {
+            console.log("Refresh already in progress, ignoring click.");
+            return;
+        }
+        isLoading = true;
+        const refreshBtn = document.querySelector('.refresh-btn');
+        refreshBtn.disabled = true;
+        refreshBtn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Loading...';
+
         try {
-            const response = await fetch(SHEET_URL).catch(()=>null);
+            document.getElementById('stockTableBody').innerHTML = '<tr><td colspan="6" class="loading-placeholder"><i class="fas fa-spinner fa-pulse"></i> Loading from sheet...<\/td></tr>';
+            allTransactions = [];
+            const SHEET_URL = "https://docs.google.com/spreadsheets/d/1h9BZHvzaOpPgtVWfw81eWFQqG9btCM8Z1fQPx9-jPPA/export?format=csv&gid=878903588";
+            let loaded = false;
+
+            const response = await fetch(SHEET_URL).catch(() => null);
             if (response && response.ok) {
                 const data = await response.text();
                 const parsed = parseCSVToTransactions(data);
@@ -327,44 +340,52 @@
                     loaded = true;
                 }
             }
-        } catch(e) { console.error("Fetch error:", e); }
 
-        if (!loaded || allTransactions.length === 0) {
-            document.getElementById('lastUpdated').innerHTML = "❌ Failed to load data. Please publish your Google Sheet as CSV.";
-            renderStockTable([]);
-            renderTransactionTable([]);
-            return;
+            if (!loaded || allTransactions.length === 0) {
+                console.error("No data loaded from sheet.");
+                document.getElementById('lastUpdated').innerHTML = "❌ Failed to load data. Please publish your Google Sheet as CSV.";
+                renderStockTable([]);
+                renderTransactionTable([]);
+                return;
+            }
+
+            allTransactions.sort((a, b) => {
+                const dateA = parseDateTime(a.timestamp);
+                const dateB = parseDateTime(b.timestamp);
+                return dateB - dateA;
+            });
+
+            categoryStock = computeCategoryStock(allTransactions);
+            const lowItems = categoryStock.filter(c => c.balance < 5);
+            const totalStock = categoryStock.reduce((sum, cat) => sum + cat.balance, 0);
+            const totalTransactions = allTransactions.length;
+
+            document.getElementById('totalStock').innerText = totalStock;
+            document.getElementById('uniqueItems').innerText = categoryStock.length;
+            document.getElementById('totalTransactions').innerText = totalTransactions;
+            document.getElementById('lowStockCount').innerHTML = `<span style="color:#e74c3c">${lowItems.length}</span>`;
+
+            if (lowItems.length) {
+                document.getElementById('alertPanel').style.display = 'flex';
+                document.getElementById('alertCount').innerText = `${lowItems.length} low stock`;
+            } else {
+                document.getElementById('alertPanel').style.display = 'none';
+            }
+
+            renderStockTable(categoryStock);
+            populateYearFilter();
+            populateCategoryFilter();
+            filterTransactionTable();
+            renderCharts();
+            document.getElementById('lastUpdated').innerHTML = `✅ ${new Date().toLocaleString()} · ${allTransactions.length} transactions`;
+        } catch (err) {
+            console.error("Refresh error:", err);
+            document.getElementById('lastUpdated').innerHTML = "❌ Error loading data.";
+        } finally {
+            refreshBtn.disabled = false;
+            refreshBtn.innerHTML = '<i class="fas fa-sync-alt"></i> Refresh';
+            isLoading = false;
         }
-
-        allTransactions.sort((a,b) => {
-            const dateA = parseDateTime(a.timestamp);
-            const dateB = parseDateTime(b.timestamp);
-            return dateB - dateA;
-        });
-
-        categoryStock = computeCategoryStock(allTransactions);
-        const lowItems = categoryStock.filter(c => c.balance < 5);
-        const totalStock = categoryStock.reduce((sum, cat) => sum + cat.balance, 0);
-        const totalTransactions = allTransactions.length;
-
-        document.getElementById('totalStock').innerText = totalStock;
-        document.getElementById('uniqueItems').innerText = categoryStock.length;
-        document.getElementById('totalTransactions').innerText = totalTransactions;
-        document.getElementById('lowStockCount').innerHTML = `<span style="color:#e74c3c">${lowItems.length}</span>`;
-
-        if (lowItems.length) {
-            document.getElementById('alertPanel').style.display = 'flex';
-            document.getElementById('alertCount').innerText = `${lowItems.length} low stock`;
-        } else {
-            document.getElementById('alertPanel').style.display = 'none';
-        }
-
-        renderStockTable(categoryStock);
-        populateYearFilter();
-        populateCategoryFilter();
-        filterTransactionTable();
-        renderCharts();
-        document.getElementById('lastUpdated').innerHTML = `✅ ${new Date().toLocaleString()} · ${allTransactions.length} transactions`;
     }
 
     function populateYearFilter() {
@@ -395,7 +416,7 @@
             sortLabel.innerText = 'Oldest First';
             sortBtn.innerHTML = '<i class="fas fa-sort-amount-up"></i> <span id="sortLabel">Oldest First</span>';
         }
-        filterTransactionTable();
+        filterTransactionTable(); // re-sort with new order
     }
 
     function getColorStyle(colorName) {
@@ -408,7 +429,7 @@
     function renderStockTable(items) {
         const tbody = document.getElementById('stockTableBody');
         tbody.innerHTML = '';
-        if (!items.length) { tbody.innerHTML = '<tr><td colspan="6">No stock data</td></tr>'; return; }
+        if (!items.length) { tbody.innerHTML = '<tr><td colspan="6">No stock data<\/td></tr>'; return; }
         for (let i = 0; i < items.length; i++) {
             const cat = items[i];
             const row = tbody.insertRow();
@@ -427,7 +448,7 @@
     function renderTransactionTable(transactions) {
         const tbody = document.getElementById('transactionTableBody');
         tbody.innerHTML = '';
-        if (!transactions.length) { tbody.innerHTML = '<tr><td colspan="11">No transactions</td></tr>'; return; }
+        if (!transactions.length) { tbody.innerHTML = '<tr><td colspan="11">No transactions<\/td></tr>'; return; }
         for (let i = 0; i < transactions.length; i++) {
             const t = transactions[i];
             const row = tbody.insertRow();
@@ -467,47 +488,46 @@
         renderStockTable(filtered);
     }
 
-function filterTransactionTable() {
-    const action = document.getElementById('actionFilter').value;
-    const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
-    const category = document.getElementById('categoryFilter').value;
-    const yearFilter = document.getElementById('yearFilter').value;
+    function filterTransactionTable() {
+        const action = document.getElementById('actionFilter').value;
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
+        const category = document.getElementById('categoryFilter').value;
+        const yearFilter = document.getElementById('yearFilter').value;
 
-    let filtered = [...allTransactions];
+        let filtered = [...allTransactions];
 
-    // 1. Apply filters
-    if (action !== 'ALL') filtered = filtered.filter(t => t.action === action);
-    if (category !== 'ALL') filtered = filtered.filter(t => t.category === category);
-    if (yearFilter !== 'ALL') {
-        filtered = filtered.filter(t => {
-            const year = extractYearFromTimestamp(t.timestamp);
-            return year && year.toString() === yearFilter;
+        if (action !== 'ALL') filtered = filtered.filter(t => t.action === action);
+        if (category !== 'ALL') filtered = filtered.filter(t => t.category === category);
+        if (yearFilter !== 'ALL') {
+            filtered = filtered.filter(t => {
+                const year = extractYearFromTimestamp(t.timestamp);
+                return year && year.toString() === yearFilter;
+            });
+        }
+
+        if (searchTerm !== "") {
+            filtered = filtered.filter(t => {
+                return (t.name && t.name.toLowerCase().includes(searchTerm)) ||
+                       (t.department && t.department.toLowerCase().includes(searchTerm)) ||
+                       (t.itemType && t.itemType.toLowerCase().includes(searchTerm)) ||
+                       (t.color && t.color.toLowerCase().includes(searchTerm)) ||
+                       (t.sizeSpec && t.sizeSpec.toLowerCase().includes(searchTerm));
+            });
+        }
+
+        // Always sort by date, respecting sortDescending
+        filtered.sort((a, b) => {
+            const dateA = parseDateTime(a.timestamp);
+            const dateB = parseDateTime(b.timestamp);
+            if (!dateA && !dateB) return 0;
+            if (!dateA) return 1;
+            if (!dateB) return -1;
+            return sortDescending ? dateB - dateA : dateA - dateB;
         });
+
+        renderTransactionTable(filtered);
     }
 
-    // 2. Apply search filter (keep only rows that match)
-    if (searchTerm !== "") {
-        filtered = filtered.filter(t => {
-            return (t.name && t.name.toLowerCase().includes(searchTerm)) ||
-                   (t.department && t.department.toLowerCase().includes(searchTerm)) ||
-                   (t.itemType && t.itemType.toLowerCase().includes(searchTerm)) ||
-                   (t.color && t.color.toLowerCase().includes(searchTerm)) ||
-                   (t.sizeSpec && t.sizeSpec.toLowerCase().includes(searchTerm));
-        });
-    }
-
-    // 3. Always sort by date, using the current sortDescending flag
-    filtered.sort((a, b) => {
-        const dateA = parseDateTime(a.timestamp);
-        const dateB = parseDateTime(b.timestamp);
-        if (!dateA && !dateB) return 0;
-        if (!dateA) return 1;
-        if (!dateB) return -1;
-        return sortDescending ? dateB - dateA : dateA - dateB;
-    });
-
-    renderTransactionTable(filtered);
-}
     function renderCharts() {
         const pieLabels = categoryStock.map(c => c.category);
         const pieData = categoryStock.map(c => c.balance);

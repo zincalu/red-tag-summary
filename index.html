@@ -315,7 +315,7 @@
     async function loadAllData() {
         document.getElementById('stockTableBody').innerHTML = '<tr><td colspan="6" class="loading-placeholder"><i class="fas fa-spinner fa-pulse"></i> Loading from sheet...</td></tr>';
         allTransactions = [];
-        const SHEET_URL = "https://docs.google.com/spreadsheets/d/1h9BZHvzaOpPgtVWfw81eWFQqG9btCM8Z1fQPx9-jPPA/export?format=csv&gid=878903588";
+        const SHEET_URL = "https://docs.google.com/spreadsheets/d/1h9BZHvzaOpPgtVWfw81eWFQqG9btCM8Z1fQPx9-jPPA/export?format=csv&gid=878903588"; //change sheet URL "https://docs.google.com/spreadsheets/d/YOUR_SHEET_ID/export?format=csv&gid=YOUR_GID"
         let loaded = false;
         try {
             const response = await fetch(SHEET_URL).catch(()=>null);

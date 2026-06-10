@@ -147,7 +147,7 @@
             gap: 8px;
         }
 
-        /* Department participated info inside the card */
+        /* Department participated info */
         .dept-participated-info {
             font-size: 0.85rem;
             color: #4a6272;
@@ -236,6 +236,16 @@
             background: #f4f9fc;
         }
 
+        /* Total row styling */
+        .category-table tfoot tr {
+            background-color: #e0f2ef;
+            font-weight: 700;
+        }
+        .category-table tfoot td {
+            border-top: 2px solid #1e6f5c;
+            padding: 8px 6px;
+        }
+
         /* Trend chart + metrics */
         .trend-container {
             display: flex;
@@ -318,7 +328,7 @@
             color: white;
         }
 
-        /* Tab content visibility - only active tab shows */
+        /* Tab content visibility */
         .tab-content {
             display: none;
         }
@@ -576,7 +586,6 @@
     <div class="stats-row">
         <div class="stats-card">
             <h3><i class="fas fa-chart-pie"></i> Department Contribution (% of IN)</h3>
-            <!-- NEW: Display participated vs total departments -->
             <div class="dept-participated-info" id="deptParticipatedInfo">—</div>
             <ul class="dept-list" id="deptContributionList"><li>Loading...</li></ul>
         </div>
@@ -612,7 +621,12 @@
                     <thead>
                         <tr><th>Category</th><th>Items IN</th><th>% of Total</th></tr>
                     </thead>
-                    <tbody><tr><td colspan="3">Loading...</td></tr>
+                    <tbody id="categorySummaryBody">
+                        <tr><td colspan="3">Loading...</td></tr>
+                    </tbody>
+                    <tfoot id="categorySummaryFoot" style="display: none;">
+                        <tr><td><strong>📊 TOTAL</strong></td><td id="totalItemsInFoot">0</td><td>100%</td></tr>
+                    </tfoot>
                 </table>
             </div>
         </div>
@@ -874,7 +888,6 @@
         document.getElementById('totalScrapKpi').innerHTML = totalScrap.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
         let { deptPercent, uniqueDepts } = computeDepartmentStats(allTransactions);
-        // Update the department participated info under the card
         document.getElementById('deptParticipatedInfo').innerHTML = `📌 Participated: ${uniqueDepts} / Total: ${TOTAL_DEPARTMENTS}`;
         document.getElementById('deptParticipatedKpi').innerHTML = `${uniqueDepts} / ${TOTAL_DEPARTMENTS}`;
         
@@ -917,7 +930,7 @@
             congratsDiv.style.display = 'none';
         }
 
-        // Category IN summary
+        // Category IN summary with total row
         let catMap = new Map();
         for (let t of allTransactions) {
             if (t.action === "IN") catMap.set(t.category, (catMap.get(t.category) || 0) + t.qty);
@@ -926,7 +939,8 @@
         let catArray = Array.from(catMap.entries()).map(([cat, qty]) => ({
             category: cat, qty, percent: ((qty / totalCatIn) * 100).toFixed(1)
         })).sort((a, b) => b.qty - a.qty);
-        let catBody = document.querySelector('#categorySummaryTable tbody');
+        
+        let catBody = document.getElementById('categorySummaryBody');
         catBody.innerHTML = '';
         for (let c of catArray) {
             let row = catBody.insertRow();
@@ -934,7 +948,15 @@
             row.insertCell(1).innerText = c.qty;
             row.insertCell(2).innerText = `${c.percent}%`;
         }
-        if (catArray.length === 0) catBody.innerHTML = '<tr><td colspan="3">No IN transactions</td></tr>';
+        if (catArray.length === 0) {
+            catBody.innerHTML = '<tr><td colspan="3">No IN transactions</td></tr>';
+        }
+        
+        // Update total row in footer
+        let foot = document.getElementById('categorySummaryFoot');
+        let totalCell = document.getElementById('totalItemsInFoot');
+        if (totalCell) totalCell.innerText = totalCatIn;
+        foot.style.display = catArray.length > 0 ? 'table-footer-group' : 'none';
     }
 
     function getCategoryEmoji(cat) {

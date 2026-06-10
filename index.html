@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Red Tag Summary – Full Dashboard</title>
+    <title>Red Tag Summary – Fully Fixed</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
@@ -36,11 +36,6 @@
             padding: 10px 0;
             border-bottom: 1px solid #ecf0f1;
             gap: 8px;
-            animation: fadeInUp 0.4s ease backwards;
-        }
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(8px); }
-            to { opacity: 1; transform: translateY(0); }
         }
         .dept-name { font-weight: 600; width: 100px; display: flex; align-items: center; gap: 6px; }
         .top-badge { font-size: 1.2rem; }
@@ -48,15 +43,8 @@
         .dept-qty { color: #1e6f5c; font-weight: 600; }
         .dept-percent { color: #e67e22; font-weight: 600; }
         .dept-bar-container { flex: 1; min-width: 120px; background-color: #ecf0f1; border-radius: 20px; height: 12px; overflow: hidden; }
-        .dept-bar { 
-            background-color: #1e6f5c; 
-            width: 0%; 
-            height: 100%; 
-            border-radius: 20px; 
-            transition: width 0.6s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-        }
+        .dept-bar { background-color: #1e6f5c; width: 0%; height: 100%; border-radius: 20px; transition: width 0.6s ease; }
         .dept-bar.gold-bar { background-color: #f1c40f; }
-        .dept-bar-container:hover .dept-bar { opacity: 0.85; transform: scaleY(1.2); transform-origin: center; }
 
         .congrats-message {
             margin-top: 20px;
@@ -77,47 +65,19 @@
             100% { transform: scale(1); background: #fff8e7; }
         }
         .congrats-message i { margin-right: 10px; font-size: 1.6rem; vertical-align: middle; }
-        .congrats-message span { font-size: 1.4rem; letter-spacing: 1px; }
+        .congrats-message span { font-size: 1.4rem; }
 
         .category-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
         .category-table th, .category-table td { padding: 8px 6px; text-align: left; border-bottom: 1px solid #ecf0f1; }
         .category-table th { background: #f4f9fc; }
 
-        .trend-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-            align-items: flex-start;
-        }
-        .trend-chart {
-            flex: 2;
-            min-width: 200px;
-        }
-        .trend-metrics {
-            flex: 1;
-            min-width: 140px;
-            background: #f8fafc;
-            border-radius: 20px;
-            padding: 15px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-        }
-        .metric-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 8px 0;
-            border-bottom: 1px solid #e2edf2;
-        }
-        .metric-label {
-            font-weight: 600;
-            color: #4a6272;
-        }
-        .metric-value {
-            font-weight: 800;
-            color: #1e6f5c;
-        }
-        .scrap-value {
-            color: #e67e22;
-        }
+        .trend-container { display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start; }
+        .trend-chart { flex: 2; min-width: 200px; }
+        .trend-metrics { flex: 1; min-width: 140px; background: #f8fafc; border-radius: 20px; padding: 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .metric-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #e2edf2; }
+        .metric-label { font-weight: 600; color: #4a6272; }
+        .metric-value { font-weight: 800; color: #1e6f5c; }
+        .scrap-value { color: #e67e22; }
 
         .alert-panel { background: #fff8e7; border-left: 4px solid #e67e22; padding: 15px 20px; border-radius: 16px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
         .alert-list { background: #fff0e0; border-radius: 12px; padding: 10px 15px; margin-top: 10px; width: 100%; }
@@ -170,7 +130,6 @@
         <button class="refresh-btn" onclick="loadAllData()"><i class="fas fa-sync-alt"></i> Refresh</button>
     </div>
 
-    <!-- KPI Row -->
     <div class="kpi-grid">
         <div class="kpi-card"><div class="kpi-icon"><i class="fas fa-arrow-down"></i></div><div class="kpi-info"><h3>Total Items IN</h3><div class="kpi-number" id="totalInKpi">—</div></div></div>
         <div class="kpi-card"><div class="kpi-icon"><i class="fas fa-arrow-up"></i></div><div class="kpi-info"><h3>Total Items OUT</h3><div class="kpi-number" id="totalOutKpi">—</div></div></div>
@@ -178,7 +137,6 @@
         <div class="kpi-card"><div class="kpi-icon"><i class="fas fa-building"></i></div><div class="kpi-info"><h3>Departments Participated</h3><div class="kpi-number" id="deptParticipatedKpi">—</div></div></div>
     </div>
 
-    <!-- First row: Department Contribution + Monthly Trend (with metrics) -->
     <div class="stats-row">
         <div class="stats-card">
             <h3><i class="fas fa-chart-pie"></i> Department Contribution (% of IN)</h3>
@@ -187,10 +145,8 @@
         <div class="stats-card">
             <h3><i class="fas fa-chart-line"></i> Monthly IN/OUT Trend</h3>
             <div class="trend-container">
-                <div class="trend-chart">
-                    <canvas id="monthlyChart" height="200"></canvas>
-                </div>
-                <div class="trend-metrics" id="trendMetrics">
+                <div class="trend-chart"><canvas id="monthlyChart" height="200"></canvas></div>
+                <div class="trend-metrics">
                     <div class="metric-item"><span class="metric-label">Total IN</span><span class="metric-value" id="metricTotalIn">—</span></div>
                     <div class="metric-item"><span class="metric-label">Total OUT</span><span class="metric-value" id="metricTotalOut">—</span></div>
                     <div class="metric-item"><span class="metric-label">Net Balance</span><span class="metric-value" id="metricNetBalance">—</span></div>
@@ -200,78 +156,47 @@
         </div>
     </div>
 
-    <!-- Second row: Top 5 Departments + Category Summary -->
     <div class="stats-row">
         <div class="stats-card">
             <h3><i class="fas fa-trophy"></i> Top 5 Departments by Items IN</h3>
             <ul class="top-dept-list" id="topDeptsList"><li>Loading...</li></ul>
-            <div id="congratsMessage" class="congrats-message" style="display: none;">
-                <i class="fas fa-crown"></i> <span id="congratsText"></span>
-            </div>
+            <div id="congratsMessage" class="congrats-message" style="display: none;"><i class="fas fa-crown"></i> <span id="congratsText"></span></div>
         </div>
         <div class="stats-card">
             <h3><i class="fas fa-table"></i> Category Summary (Items IN)</h3>
-            <table class="category-table" id="categorySummaryTable">
-                <thead><tr><th>Category</th><th>Items IN</th><th>% of Total</th></tr></thead>
-                <tbody><td><td colspan="3">Loading...<\/td><\/tr><\/tbody>
-            <\/table>
+            <table class="category-table" id="categorySummaryTable"><thead><tr><th>Category</th><th>Items IN</th><th>% of Total</th></tr></thead><tbody><tr><td colspan="3">Loading...<\/td><\/tr><\/tbody><\/table>
         <\/div>
     <\/div>
 
-    <!-- Low stock alert -->
-    <div class="alert-panel" id="alertPanel" style="display: none;">
-        <div><i class="fas fa-bell"></i> <span class="alert-title">⚠️ Low Stock Alert (Balance &lt; 5)</span></div>
-        <div class="alert-count" id="alertCount">0</div>
-        <div id="alertDetails" class="alert-list"></div>
-    </div>
+    <div class="alert-panel" id="alertPanel" style="display: none;"><div><i class="fas fa-bell"></i> <span class="alert-title">⚠️ Low Stock Alert (Balance &lt; 5)</span></div><div class="alert-count" id="alertCount">0</div><div id="alertDetails" class="alert-list"></div></div>
 
-    <!-- Tabs for Stock and Transactions -->
     <div class="tabs">
         <button class="tab-btn active" data-tab="stock">📊 Stock by Category</button>
         <button class="tab-btn" data-tab="transactions">📋 Transactions (with Colour & Spec)</button>
     </div>
 
-    <!-- Stock Tab -->
     <div id="stockTab" class="tab-content active">
         <div class="filters">
             <input type="text" id="stockSearch" placeholder="🔍 Search category..." onkeyup="filterStockTable()">
-            <select id="stockStatusFilter" onchange="filterStockTable()">
-                <option value="ALL">All Status</option>
-                <option value="low">🔴 Low (<5)</option>
-                <option value="normal">✅ Normal (≥5)</option>
-            </select>
+            <select id="stockStatusFilter" onchange="filterStockTable()"><option value="ALL">All Status</option><option value="low">🔴 Low (<5)</option><option value="normal">✅ Normal (≥5)</option></select>
         </div>
-        <div class="table-wrapper">
-            <table id="stockTable">
-                <thead><tr><th>No.</th><th>Category</th><th>Balance</th><th>Total IN</th><th>Total OUT</th><th>Status</th></tr></thead>
-                <tbody id="stockTableBody"><tr><td colspan="6" class="loading-placeholder">Loading...<\/td><\/tr><\/tbody>
-            <\/table>
-        <\/div>
+        <div class="table-wrapper"><table id="stockTable"><thead><tr><th>No.</th><th>Category</th><th>Balance</th><th>Total IN</th><th>Total OUT</th><th>Status</th></tr></thead><tbody id="stockTableBody"><td><td colspan="6" class="loading-placeholder">Loading...<\/td><\/tr><\/tbody><\/table><\/div>
     <\/div>
 
-    <!-- Transactions Tab -->
     <div id="transactionsTab" class="tab-content">
         <div class="filters">
             <select id="actionFilter"><option value="ALL">All Actions</option><option value="IN">IN Only</option><option value="OUT">OUT Only</option></select>
-            <input type="text" id="searchInput" placeholder="🔍 Search by name, dept, item, colour, spec..." onkeyup="filterTransactionTable()">
+            <input type="text" id="searchInput" placeholder="🔍 Search..." onkeyup="filterTransactionTable()">
             <select id="categoryFilter"><option value="ALL">All Categories</option></select>
             <select id="yearFilter" onchange="filterTransactionTable()"><option value="ALL">All Years</option></select>
             <div class="sort-toggle" onclick="toggleSortOrder()"><i class="fas fa-sort-amount-down"></i> <span id="sortLabel">Latest First</span></div>
             <div class="note-right"><i class="fas fa-info-circle"></i> <span class="refresh-note" onclick="loadAllData()">Refresh</span></div>
         </div>
-        <div class="table-wrapper">
-            <table id="transactionTable">
-                <thead><tr><th>No.</th><th>Date & Time</th><th>Name</th><th>Dept</th><th>Action</th><th>Item Type</th><th>Qty</th><th>Color</th><th>Size / Spec</th><th>Category</th><th>Photo</th></tr></thead>
-                <tbody id="transactionTableBody"><tr><td colspan="11">Loading...<\/td><\/tr><\/tbody>
-            <\/table>
-        <\/div>
+        <div class="table-wrapper"><table id="transactionTable"><thead><tr><th>No.</th><th>Date & Time</th><th>Name</th><th>Dept</th><th>Action</th><th>Item Type</th><th>Qty</th><th>Color</th><th>Size / Spec</th><th>Category</th><th>Photo</th></tr></thead><tbody id="transactionTableBody"><td><td colspan="11">Loading...<\/td><\/tr><\/tbody><\/table><\/div>
     <\/div>
 <\/div>
 
-<div id="imageModal" class="modal" onclick="closeModal()">
-    <span class="close-modal" onclick="event.stopPropagation(); closeModal()">&times;</span>
-    <img id="modalImage" src="" alt="Enlarged view" onclick="event.stopPropagation()">
-</div>
+<div id="imageModal" class="modal" onclick="closeModal()"><span class="close-modal" onclick="event.stopPropagation(); closeModal()">&times;</span><img id="modalImage" src="" alt="Enlarged view" onclick="event.stopPropagation()"></div>
 
 <script>
     let allTransactions = [];
@@ -281,19 +206,18 @@
     let isLoading = false;
     const TOTAL_DEPARTMENTS = 7;
 
-    function getCategoryEmoji(category) {
-        const lower = category.toLowerCase();
-        if (lower.includes('stationary')) return '📎';
-        if (lower.includes('furniture')) return '🪑';
-        if (lower.includes('production tool')) return '🔧';
-        if (lower.includes('mechanical')) return '⚙️';
-        if (lower.includes('electrical')) return '⚡';
-        if (lower.includes('jig') || lower.includes('fixture')) return '🔩';
-        if (lower.includes('machinery') || lower.includes('machineries')) return '🏭';
+    function getCategoryEmoji(cat) {
+        const c = cat.toLowerCase();
+        if (c.includes('stationary')) return '📎';
+        if (c.includes('furniture')) return '🪑';
+        if (c.includes('production tool')) return '🔧';
+        if (c.includes('mechanical')) return '⚙️';
+        if (c.includes('electrical')) return '⚡';
+        if (c.includes('jig') || c.includes('fixture')) return '🔩';
+        if (c.includes('machinery')) return '🏭';
         return '📦';
     }
 
-    // ---------- Helper functions ----------
     function findColumn(headers, possibleNames) {
         for (let name of possibleNames) {
             let idx = headers.findIndex(h => h.toLowerCase().includes(name.toLowerCase()));
@@ -302,19 +226,14 @@
         return -1;
     }
 
-    function parseDateTime(timestamp) {
-        if (!timestamp) return null;
-        const match = timestamp.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})(?:\s+(\d{1,2}):(\d{1,2}):(\d{1,2}))?/);
-        if (match) {
-            return new Date(parseInt(match[3]), parseInt(match[2])-1, parseInt(match[1]), match[4]||0, match[5]||0, match[6]||0);
-        }
-        return new Date(timestamp);
+    function parseDateTime(ts) {
+        if (!ts) return null;
+        let m = ts.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})(?:\s+(\d{1,2}):(\d{1,2}):(\d{1,2}))?/);
+        if (m) return new Date(parseInt(m[3]), parseInt(m[2])-1, parseInt(m[1]), m[4]||0, m[5]||0, m[6]||0);
+        return new Date(ts);
     }
 
-    function extractYearFromTimestamp(timestamp) {
-        let m = timestamp?.match(/(\d{4})/);
-        return m ? parseInt(m[1]) : null;
-    }
+    function extractYearFromTimestamp(ts) { let m = ts?.match(/(\d{4})/); return m ? parseInt(m[1]) : null; }
 
     function convertDriveToImage(url) {
         if (!url || typeof url !== 'string') return null;
@@ -377,7 +296,7 @@
             if (action === "IN" && colQtyIn !== -1) qty = parseFloat(row[colQtyIn]) || 0;
             else if (action === "OUT" && colQtyOut !== -1) qty = parseFloat(row[colQtyOut]) || 0;
             if (qty === 0 && colGenericQty !== -1) qty = parseFloat(row[colGenericQty]) || 0;
-            if (qty === 0) qty = 1;  // show rows even if quantity missing
+            if (qty === 0) qty = 1;
 
             let color = "";
             if (action === "IN" && colColorIn !== -1) color = row[colColorIn];
@@ -398,14 +317,9 @@
             let photoUrl = convertDriveToImage(colPhoto !== -1 ? row[colPhoto] : "");
 
             if (type || (colGenericItem !== -1 && row[colGenericItem])) {
-                transactions.push({
-                    timestamp, name, department: dept, action,
-                    itemType: type || (colGenericItem !== -1 ? row[colGenericItem] : "?"),
-                    qty, photoUrl, color, sizeSpec: spec, category
-                });
+                transactions.push({ timestamp, name, department: dept, action, itemType: type || row[colGenericItem], qty, photoUrl, color, sizeSpec: spec, category });
             }
         }
-        console.log(`Parsed ${transactions.length} transactions`);
         return transactions;
     }
 
@@ -427,9 +341,7 @@
         for (let t of transactions) {
             let dept = t.department || "Unknown";
             uniqueDepts.add(dept);
-            if (t.action === "IN") {
-                deptIn.set(dept, (deptIn.get(dept) || 0) + t.qty);
-            }
+            if (t.action === "IN") deptIn.set(dept, (deptIn.get(dept) || 0) + t.qty);
         }
         let totalIn = Array.from(deptIn.values()).reduce((a,b)=>a+b,0);
         let deptPercent = Array.from(deptIn.entries()).map(([dept, qty]) => ({ dept, qty, percent: (qty/totalIn*100).toFixed(1) })).sort((a,b)=>b.qty - a.qty);
@@ -438,169 +350,115 @@
 
     function computeCategoryInSummary(transactions) {
         let catIn = new Map();
-        for (let t of transactions) {
-            if (t.action === "IN") {
-                catIn.set(t.category, (catIn.get(t.category) || 0) + t.qty);
-            }
-        }
+        for (let t of transactions) if (t.action === "IN") catIn.set(t.category, (catIn.get(t.category) || 0) + t.qty);
         let totalIn = Array.from(catIn.values()).reduce((a,b)=>a+b,0);
         let catArray = Array.from(catIn.entries()).map(([cat, qty]) => ({ category: cat, qty, percent: (qty/totalIn*100).toFixed(1) })).sort((a,b)=>b.qty - a.qty);
         return { catArray, totalIn };
     }
 
-    function updateSummaryStats() {
-        let totalIn = 0, totalOut = 0;
-        for (let t of allTransactions) {
-            if (t.action === "IN") totalIn += t.qty;
-            else totalOut += t.qty;
-        }
-        let netBalance = totalIn - totalOut;
-        document.getElementById('totalInKpi').innerText = totalIn;
-        document.getElementById('totalOutKpi').innerText = totalOut;
-        document.getElementById('netBalanceKpi').innerText = netBalance;
+    function renderChartsAndTables() {
+        try {
+            let totalIn = 0, totalOut = 0;
+            for (let t of allTransactions) t.action === "IN" ? totalIn += t.qty : totalOut += t.qty;
+            let netBalance = totalIn - totalOut;
+            document.getElementById('totalInKpi').innerText = totalIn;
+            document.getElementById('totalOutKpi').innerText = totalOut;
+            document.getElementById('netBalanceKpi').innerText = netBalance;
+            document.getElementById('metricTotalIn').innerText = totalIn;
+            document.getElementById('metricTotalOut').innerText = totalOut;
+            document.getElementById('metricNetBalance').innerText = netBalance;
+            let scrap = totalOut / totalIn;
+            document.getElementById('metricScrapRate').innerHTML = scrap.toFixed(2) + ` (${(scrap*100).toFixed(1)}%)`;
 
-        // Update metrics in trend card
-        document.getElementById('metricTotalIn').innerText = totalIn;
-        document.getElementById('metricTotalOut').innerText = totalOut;
-        document.getElementById('metricNetBalance').innerText = netBalance;
-        let scrapRate = (totalOut / totalIn * 100).toFixed(1);
-        document.getElementById('metricScrapRate').innerHTML = (totalOut / totalIn).toFixed(2) + ` (${scrapRate}%)`;
+            let { deptPercent, uniqueDepts } = computeDepartmentStats(allTransactions);
+            document.getElementById('deptParticipatedKpi').innerHTML = `${uniqueDepts} / ${TOTAL_DEPARTMENTS}`;
+            let deptHtml = '';
+            for (let d of deptPercent) deptHtml += `<li><span class="dept-name">${d.dept}</span><div class="dept-stats"><span class="dept-qty">${d.qty} item(s)</span><span class="dept-percent">${d.percent}%</span></div><div class="dept-bar-container"><div class="dept-bar" style="width: ${d.percent}%;"></div></div></li>`;
+            document.getElementById('deptContributionList').innerHTML = deptHtml || '<li>No data</li>';
 
-        let { deptPercent, uniqueDepts } = computeDepartmentStats(allTransactions);
-        document.getElementById('deptParticipatedKpi').innerHTML = `${uniqueDepts} / ${TOTAL_DEPARTMENTS}`;
-        
-        let deptListHtml = '';
-        for (let d of deptPercent) {
-            deptListHtml += `
-                <li>
-                    <span class="dept-name">${d.dept}</span>
-                    <div class="dept-stats">
-                        <span class="dept-qty">${d.qty} item(s)</span>
-                        <span class="dept-percent">${d.percent}%</span>
-                    </div>
-                    <div class="dept-bar-container">
-                        <div class="dept-bar" style="width: ${d.percent}%;"></div>
-                    </div>
-                </li>
-            `;
-        }
-        document.getElementById('deptContributionList').innerHTML = deptListHtml || '<li>No data</li>';
-
-        let top5 = deptPercent.slice(0,5);
-        let topListHtml = '';
-        let firstDeptName = '';
-        if (top5.length > 0) firstDeptName = top5[0].dept;
-        for (let idx = 0; idx < top5.length; idx++) {
-            let d = top5[idx];
-            let isFirst = (idx === 0);
-            let badgeHtml = isFirst ? '<span class="top-badge">🏆</span> ' : '';
-            let barClass = isFirst ? 'dept-bar gold-bar' : 'dept-bar';
-            topListHtml += `
-                <li>
-                    <span class="dept-name">${badgeHtml}${d.dept}</span>
-                    <div class="dept-stats">
-                        <span class="dept-qty">${d.qty} item(s)</span>
-                        <span class="dept-percent">${d.percent}%</span>
-                    </div>
-                    <div class="dept-bar-container">
-                        <div class="${barClass}" style="width: ${d.percent}%;"></div>
-                    </div>
-                </li>
-            `;
-        }
-        document.getElementById('topDeptsList').innerHTML = topListHtml || '<li>No data</li>';
-
-        const congratsDiv = document.getElementById('congratsMessage');
-        const congratsTextSpan = document.getElementById('congratsText');
-        if (top5.length > 0) {
-            congratsTextSpan.innerHTML = `🎉 CONGRATULATIONS to ${firstDeptName} for being the TOP CONTRIBUTOR! 🎉`;
-            congratsDiv.style.display = 'block';
-        } else {
-            congratsDiv.style.display = 'none';
-        }
-
-        let { catArray } = computeCategoryInSummary(allTransactions);
-        let catTableBody = document.querySelector('#categorySummaryTable tbody');
-        catTableBody.innerHTML = '';
-        for (let c of catArray) {
-            let row = catTableBody.insertRow();
-            let emoji = getCategoryEmoji(c.category);
-            row.insertCell(0).innerHTML = `${emoji} ${c.category}`;
-            row.insertCell(1).innerText = c.qty;
-            row.insertCell(2).innerText = `${c.percent}%`;
-        }
-        if (catArray.length === 0) catTableBody.innerHTML = '<tr><td colspan="3">No IN transactions<\/td><\/tr>';
-    }
-
-    function renderMonthlyChart() {
-        let monthMap = new Map();
-        for (let t of allTransactions) {
-            let date = parseDateTime(t.timestamp);
-            if (date && !isNaN(date.getTime())) {
-                let ym = `${date.getFullYear()}-${(date.getMonth()+1).toString().padStart(2,'0')}`;
-                let cur = monthMap.get(ym) || { in:0, out:0 };
-                if (t.action === "IN") cur.in += t.qty;
-                else cur.out += t.qty;
-                monthMap.set(ym, cur);
+            let top5 = deptPercent.slice(0,5);
+            let topHtml = '';
+            let firstDept = top5.length ? top5[0].dept : '';
+            for (let i=0; i<top5.length; i++) {
+                let d = top5[i];
+                let isFirst = i === 0;
+                let badge = isFirst ? '<span class="top-badge">🏆</span> ' : '';
+                let barClass = isFirst ? 'dept-bar gold-bar' : 'dept-bar';
+                topHtml += `<li><span class="dept-name">${badge}${d.dept}</span><div class="dept-stats"><span class="dept-qty">${d.qty} item(s)</span><span class="dept-percent">${d.percent}%</span></div><div class="dept-bar-container"><div class="${barClass}" style="width: ${d.percent}%;"></div></div></li>`;
             }
-        }
-        let months = Array.from(monthMap.keys()).sort();
-        if (monthlyChart) monthlyChart.destroy();
-        let ctx = document.getElementById('monthlyChart').getContext('2d');
-        monthlyChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: months,
-                datasets: [
-                    { label: 'IN', data: months.map(m=>monthMap.get(m).in), borderColor: '#289672', fill: false, tension: 0.3 },
-                    { label: 'OUT', data: months.map(m=>monthMap.get(m).out), borderColor: '#e74c3c', fill: false, tension: 0.3 }
-                ]
-            },
-            options: { responsive: true, maintainAspectRatio: true }
-        });
-    }
+            document.getElementById('topDeptsList').innerHTML = topHtml || '<li>No data</li>';
+            let congratsDiv = document.getElementById('congratsMessage');
+            if (firstDept) {
+                document.getElementById('congratsText').innerHTML = `🎉 CONGRATULATIONS to ${firstDept} for being the TOP CONTRIBUTOR! 🎉`;
+                congratsDiv.style.display = 'block';
+            } else congratsDiv.style.display = 'none';
 
-    function updateLowStockAlert() {
-        let lowItems = categoryStock.filter(c => c.balance < 5);
-        let alertPanel = document.getElementById('alertPanel');
-        let alertCount = document.getElementById('alertCount');
-        let alertDetails = document.getElementById('alertDetails');
-        if (lowItems.length > 0) {
-            alertPanel.style.display = 'flex';
-            alertCount.innerText = `${lowItems.length} category(ies)`;
-            let detailsHtml = '<strong>⚠️ Categories with balance < 5:</strong>';
-            lowItems.forEach(cat => { detailsHtml += `<div>• ${cat.category}: ${cat.balance} unit(s)</div>`; });
-            alertDetails.innerHTML = detailsHtml;
-        } else {
-            alertPanel.style.display = 'none';
-            alertDetails.innerHTML = '';
-        }
-    }
+            let { catArray } = computeCategoryInSummary(allTransactions);
+            let catBody = document.querySelector('#categorySummaryTable tbody');
+            catBody.innerHTML = '';
+            for (let c of catArray) {
+                let row = catBody.insertRow();
+                row.insertCell(0).innerHTML = `${getCategoryEmoji(c.category)} ${c.category}`;
+                row.insertCell(1).innerText = c.qty;
+                row.insertCell(2).innerText = `${c.percent}%`;
+            }
+            if (!catArray.length) catBody.innerHTML = '<tr><td colspan="3">No IN transactions</td></tr>';
 
-    function renderStockTable(items) {
-        let tbody = document.getElementById('stockTableBody');
-        tbody.innerHTML = '';
-        if (!items.length) { tbody.innerHTML = '<td><td colspan="6">No stock data<\/td><\/tr>'; return; }
-        for (let i=0; i<items.length; i++) {
-            let cat = items[i];
-            let row = tbody.insertRow();
-            row.insertCell(0).innerText = i+1;
-            row.insertCell(1).innerHTML = `<strong>${cat.category}</strong>`;
-            let cls = cat.balance < 5 ? 'stock-low' : 'stock-high';
-            row.insertCell(2).innerHTML = `<span class="stock-badge ${cls}">${cat.balance}</span>`;
-            row.insertCell(3).innerText = cat.totalIn;
-            row.insertCell(4).innerText = cat.totalOut;
-            let status = cat.balance < 5 ? '🔴 LOW' : '✅ NORMAL';
-            let color = cat.balance < 5 ? '#e74c3c' : '#1e6f5c';
-            row.insertCell(5).innerHTML = `<span style="color:${color}; font-weight:600">${status}</span>`;
-        }
+            // Monthly chart
+            let monthMap = new Map();
+            for (let t of allTransactions) {
+                let date = parseDateTime(t.timestamp);
+                if (date && !isNaN(date)) {
+                    let ym = `${date.getFullYear()}-${(date.getMonth()+1).toString().padStart(2,'0')}`;
+                    let cur = monthMap.get(ym) || { in:0, out:0 };
+                    t.action === "IN" ? cur.in += t.qty : cur.out += t.qty;
+                    monthMap.set(ym, cur);
+                }
+            }
+            let months = Array.from(monthMap.keys()).sort();
+            if (monthlyChart) monthlyChart.destroy();
+            let ctx = document.getElementById('monthlyChart').getContext('2d');
+            monthlyChart = new Chart(ctx, {
+                type: 'line',
+                data: { labels: months, datasets: [{ label: 'IN', data: months.map(m=>monthMap.get(m).in), borderColor: '#289672', fill: false, tension: 0.3 }, { label: 'OUT', data: months.map(m=>monthMap.get(m).out), borderColor: '#e74c3c', fill: false, tension: 0.3 }] },
+                options: { responsive: true, maintainAspectRatio: true }
+            });
+
+            // Low stock alert
+            let lowItems = categoryStock.filter(c => c.balance < 5);
+            let alertPanel = document.getElementById('alertPanel');
+            if (lowItems.length) {
+                alertPanel.style.display = 'flex';
+                document.getElementById('alertCount').innerText = `${lowItems.length} category(ies)`;
+                let details = '<strong>⚠️ Categories with balance < 5:</strong>';
+                lowItems.forEach(c => details += `<div>• ${c.category}: ${c.balance} unit(s)</div>`);
+                document.getElementById('alertDetails').innerHTML = details;
+            } else alertPanel.style.display = 'none';
+
+            // Stock table
+            let stockBody = document.getElementById('stockTableBody');
+            stockBody.innerHTML = '';
+            for (let i=0; i<categoryStock.length; i++) {
+                let cat = categoryStock[i];
+                let row = stockBody.insertRow();
+                row.insertCell(0).innerText = i+1;
+                row.insertCell(1).innerHTML = `<strong>${cat.category}</strong>`;
+                let cls = cat.balance < 5 ? 'stock-low' : 'stock-high';
+                row.insertCell(2).innerHTML = `<span class="stock-badge ${cls}">${cat.balance}</span>`;
+                row.insertCell(3).innerText = cat.totalIn;
+                row.insertCell(4).innerText = cat.totalOut;
+                let status = cat.balance < 5 ? '🔴 LOW' : '✅ NORMAL';
+                row.insertCell(5).innerHTML = `<span style="color:${cat.balance<5?'#e74c3c':'#1e6f5c'}; font-weight:600">${status}</span>`;
+            }
+            if (!categoryStock.length) stockBody.innerHTML = '<tr><td colspan="6">No stock data</td></tr>';
+        } catch(e) { console.error("Render error", e); }
     }
 
     function renderTransactionTable(transactions) {
         let tbody = document.getElementById('transactionTableBody');
         tbody.innerHTML = '';
         if (!transactions || transactions.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="11">No transactions found. Check CSV format.‘</td><\/tr>';
+            tbody.innerHTML = '<tr><td colspan="11">No transactions found</td></tr>';
             return;
         }
         for (let i=0; i<transactions.length; i++) {
@@ -612,23 +470,20 @@
             row.insertCell(3).innerText = t.department || '-';
             row.insertCell(4).innerHTML = `<span class="badge-action ${t.action==='IN'?'badge-in':'badge-out'}">${t.action}</span>`;
             row.insertCell(5).innerText = t.itemType || '?';
-            row.insertCell(6).innerText = t.qty || 0;
+            row.insertCell(6).innerText = t.qty;
             if (t.color) row.insertCell(7).innerHTML = `<span class="color-tag"><span class="color-dot" style="background:${getColorStyle(t.color)}"></span>${t.color}</span>`;
             else row.insertCell(7).innerText = '—';
             row.insertCell(8).innerText = t.sizeSpec || '—';
-            row.insertCell(9).innerText = t.category || '—';
+            row.insertCell(9).innerText = t.category;
             let photoCell = row.insertCell(10);
-            if (t.action === 'IN' && t.photoUrl) {
-                photoCell.innerHTML = `<img class="photo-thumb" src="${t.photoUrl}" onclick="showModal('${t.photoUrl}')" onerror="this.style.display='none'">`;
-            } else {
-                photoCell.innerHTML = '—';
-            }
+            if (t.action === 'IN' && t.photoUrl) photoCell.innerHTML = `<img class="photo-thumb" src="${t.photoUrl}" onclick="showModal('${t.photoUrl}')" onerror="this.style.display='none'">`;
+            else photoCell.innerHTML = '—';
         }
     }
 
-    function getColorStyle(colorName) {
+    function getColorStyle(color) {
         let map = { red:'#e74c3c', blue:'#3498db', green:'#2ecc71', yellow:'#f1c40f', black:'#2c3e50', white:'#ecf0f1', orange:'#e67e22', purple:'#9b59b6' };
-        let lower = colorName.toLowerCase();
+        let lower = color.toLowerCase();
         for (let [k,v] of Object.entries(map)) if (lower.includes(k)) return v;
         return '#cccccc';
     }
@@ -642,7 +497,21 @@
             if (status === 'normal' && cat.balance < 5) return false;
             return true;
         });
-        renderStockTable(filtered);
+        let tbody = document.getElementById('stockTableBody');
+        tbody.innerHTML = '';
+        for (let i=0; i<filtered.length; i++) {
+            let cat = filtered[i];
+            let row = tbody.insertRow();
+            row.insertCell(0).innerText = i+1;
+            row.insertCell(1).innerHTML = `<strong>${cat.category}</strong>`;
+            let cls = cat.balance < 5 ? 'stock-low' : 'stock-high';
+            row.insertCell(2).innerHTML = `<span class="stock-badge ${cls}">${cat.balance}</span>`;
+            row.insertCell(3).innerText = cat.totalIn;
+            row.insertCell(4).innerText = cat.totalOut;
+            let statusText = cat.balance < 5 ? '🔴 LOW' : '✅ NORMAL';
+            row.insertCell(5).innerHTML = `<span style="color:${cat.balance<5?'#e74c3c':'#1e6f5c'}">${statusText}</span>`;
+        }
+        if (!filtered.length) tbody.innerHTML = '<tr><td colspan="6">No matching categories</td></tr>';
     }
 
     function filterTransactionTable() {
@@ -657,7 +526,9 @@
         if (search) filtered = filtered.filter(t => (t.name+'').toLowerCase().includes(search) || (t.department+'').toLowerCase().includes(search) || (t.itemType+'').toLowerCase().includes(search) || (t.color+'').toLowerCase().includes(search) || (t.sizeSpec+'').toLowerCase().includes(search));
         filtered.sort((a,b) => {
             let da = parseDateTime(a.timestamp), db = parseDateTime(b.timestamp);
-            if (!da && !db) return 0; if (!da) return 1; if (!db) return -1;
+            if (!da && !db) return 0;
+            if (!da) return 1;
+            if (!db) return -1;
             return sortDescending ? db - da : da - db;
         });
         renderTransactionTable(filtered);
@@ -675,10 +546,7 @@
         let select = document.getElementById('yearFilter');
         select.innerHTML = '<option value="ALL">All Years</option>';
         years.forEach(y => select.innerHTML += `<option value="${y}">${y}</option>`);
-        if (years.size === 0 && allTransactions.length > 0) {
-            let currentYear = new Date().getFullYear();
-            select.innerHTML += `<option value="${currentYear}">${currentYear}</option>`;
-        }
+        if (!years.length && allTransactions.length) select.innerHTML += `<option value="${new Date().getFullYear()}">${new Date().getFullYear()}</option>`;
     }
 
     function toggleSortOrder() { sortDescending = !sortDescending; filterTransactionTable(); }
@@ -691,7 +559,9 @@
         btn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Loading...';
         try {
             let url = "https://docs.google.com/spreadsheets/d/1h9BZHvzaOpPgtVWfw81eWFQqG9btCM8Z1fQPx9-jPPA/export?format=csv&gid=878903588";
-            let resp = await fetch(url);
+            // Use a CORS proxy to avoid CORS issues
+            let proxyUrl = "https://api.allorigins.win/raw?url=" + encodeURIComponent(url);
+            let resp = await fetch(proxyUrl);
             if (resp.ok) {
                 let csv = await resp.text();
                 let parsed = parseCSVToTransactions(csv);
@@ -699,21 +569,18 @@
                     allTransactions = parsed;
                     allTransactions.sort((a,b)=>parseDateTime(b.timestamp)-parseDateTime(a.timestamp));
                     categoryStock = computeCategoryStock(allTransactions);
-                    document.getElementById('lastUpdated').innerHTML = `✅ ${new Date().toLocaleString()} · ${allTransactions.length} transactions loaded`;
-                    updateSummaryStats();
-                    renderMonthlyChart();
-                    updateLowStockAlert();
-                    renderStockTable(categoryStock);
+                    renderChartsAndTables();
                     populateYearFilter();
                     populateCategoryFilter();
                     filterTransactionTable();
-                } else throw new Error("No transactions parsed from CSV");
+                    document.getElementById('lastUpdated').innerHTML = `✅ ${new Date().toLocaleString()} · ${allTransactions.length} transactions loaded`;
+                } else throw new Error("No valid transactions in CSV");
             } else throw new Error("HTTP " + resp.status);
         } catch(e) {
-            console.error("Load error:", e);
-            document.getElementById('lastUpdated').innerHTML = "❌ Failed to load data. Check CSV publish.";
-            renderStockTable([]);
-            renderTransactionTable([]);
+            console.error(e);
+            document.getElementById('lastUpdated').innerHTML = "❌ Failed to load data. Make sure your Google Sheet is published as CSV (File → Share → Publish to web → CSV).";
+            document.getElementById('stockTableBody').innerHTML = '<tr><td colspan="6">Error loading data. Check console for details.</td></tr>';
+            document.getElementById('transactionTableBody').innerHTML = '<tr><td colspan="11">Error loading data.</td></tr>';
         } finally {
             btn.disabled = false;
             btn.innerHTML = '<i class="fas fa-sync-alt"></i> Refresh';

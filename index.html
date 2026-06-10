@@ -22,14 +22,57 @@
         .kpi-icon { width: 58px; height: 58px; background: #e0f2ef; border-radius: 40px; display: flex; align-items: center; justify-content: center; font-size: 1.9rem; color: #1e6f5c; }
         .kpi-info h3 { font-size: 0.8rem; color: #597a8b; margin-bottom: 6px; }
         .kpi-number { font-size: 2rem; font-weight: 800; color: #1a2c38; }
-        .kpi-trend { font-size: 0.7rem; color: #27ae60; margin-left: 5px; }
 
         .stats-row { display: flex; flex-wrap: wrap; gap: 24px; margin-bottom: 24px; }
         .stats-card { flex: 1; min-width: 280px; background: white; padding: 20px; border-radius: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
         .stats-card h3 { margin-bottom: 16px; font-size: 1.2rem; color: #1e6f5c; border-left: 4px solid #1e6f5c; padding-left: 12px; }
+
+        /* Department list with bars */
         .dept-list { list-style: none; }
-        .dept-list li { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #ecf0f1; }
-        .dept-percent { font-weight: 600; color: #1e6f5c; }
+        .dept-list li {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            padding: 10px 0;
+            border-bottom: 1px solid #ecf0f1;
+            gap: 8px;
+        }
+        .dept-name {
+            font-weight: 600;
+            width: 100px;
+        }
+        .dept-stats {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+            font-size: 0.85rem;
+            min-width: 130px;
+        }
+        .dept-qty {
+            color: #1e6f5c;
+            font-weight: 600;
+        }
+        .dept-percent {
+            color: #e67e22;
+            font-weight: 600;
+        }
+        .dept-bar-container {
+            flex: 1;
+            min-width: 120px;
+            background-color: #ecf0f1;
+            border-radius: 20px;
+            height: 12px;
+            overflow: hidden;
+        }
+        .dept-bar {
+            background-color: #1e6f5c;
+            width: 0%;
+            height: 100%;
+            border-radius: 20px;
+            transition: width 0.3s ease;
+        }
+
         .category-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
         .category-table th, .category-table td { padding: 8px 6px; text-align: left; border-bottom: 1px solid #ecf0f1; }
         .category-table th { background: #f4f9fc; }
@@ -68,6 +111,11 @@
         .color-tag { background: #f0f0f0; padding: 2px 8px; border-radius: 20px; font-size: 0.7rem; display: inline-flex; align-items: center; gap: 4px; }
         .sort-toggle { display: inline-flex; align-items: center; gap: 6px; background: #e0f2ef; padding: 6px 12px; border-radius: 30px; cursor: pointer; }
         .note-right { margin-left: auto; font-size: 0.75rem; color: #e67e22; background: #fff3e0; padding: 6px 12px; border-radius: 30px; }
+        @media (max-width: 700px) {
+            .dept-name { width: auto; }
+            .dept-stats { min-width: auto; }
+            .dept-bar-container { min-width: 80px; }
+        }
     </style>
 </head>
 <body>
@@ -88,7 +136,7 @@
         <div class="kpi-card"><div class="kpi-icon"><i class="fas fa-building"></i></div><div class="kpi-info"><h3>Departments Participated</h3><div class="kpi-number" id="deptParticipatedKpi">—</div></div></div>
     </div>
 
-    <!-- Department contribution & Category summary row -->
+    <!-- Department contribution (with bars) & Category summary -->
     <div class="stats-row">
         <div class="stats-card">
             <h3><i class="fas fa-chart-pie"></i> Department Contribution (% of IN)</h3>
@@ -100,10 +148,10 @@
             <h3><i class="fas fa-table"></i> Category Summary (Items IN)</h3>
             <table class="category-table" id="categorySummaryTable">
                 <thead><tr><th>Category</th><th>Items IN</th><th>% of Total</th></tr></thead>
-                <tbody><tr><td colspan="3">Loading...</td></tr></tbody>
-            </table>
-        </div>
-    </div>
+                <tbody><tr><td colspan="3">Loading...<\/td><\/tr><\/tbody>
+            <\/table>
+        <\/div>
+    <\/div>
 
     <!-- Top 5 departments & Monthly trend -->
     <div class="stats-row">
@@ -119,7 +167,7 @@
         </div>
     </div>
 
-    <!-- Low stock alert (dynamic) -->
+    <!-- Low stock alert -->
     <div class="alert-panel" id="alertPanel" style="display: none;">
         <div><i class="fas fa-bell"></i> <span class="alert-title">⚠️ Low Stock Alert (Balance &lt; 5)</span></div>
         <div class="alert-count" id="alertCount">0</div>
@@ -144,10 +192,10 @@
         <div class="table-wrapper">
             <table id="stockTable">
                 <thead><tr><th>No.</th><th>Category</th><th>Balance</th><th>Total IN</th><th>Total OUT</th><th>Status</th></tr></thead>
-                <tbody id="stockTableBody"><tr><td colspan="6" class="loading-placeholder">Loading...</td></tr></tbody>
-            </table>
-        </div>
-    </div>
+                <tbody id="stockTableBody"><tr><td colspan="6" class="loading-placeholder">Loading...<\/td><\/tr><\/tbody>
+            <\/table>
+        <\/div>
+    <\/div>
 
     <div id="transactionsTab" class="tab-content">
         <div class="filters">
@@ -161,11 +209,11 @@
         <div class="table-wrapper">
             <table id="transactionTable">
                 <thead><tr><th>No.</th><th>Date</th><th>Name</th><th>Dept</th><th>Action</th><th>Item Type</th><th>Qty</th><th>Color</th><th>Size/Spec</th><th>Category</th><th>Photo</th></tr></thead>
-                <tbody id="transactionTableBody"><tr><td colspan="11">Loading...</td></tr></tbody>
-            </table>
-        </div>
-    </div>
-</div>
+                <tbody id="transactionTableBody"><tr><td colspan="11">Loading...<\/td><\/tr><\/tbody>
+            <\/table>
+        <\/div>
+    <\/div>
+<\/div>
 
 <div id="imageModal" class="modal" onclick="closeModal()">
     <span class="close-modal" onclick="event.stopPropagation(); closeModal()">&times;</span>
@@ -178,9 +226,9 @@
     let monthlyChart;
     let sortDescending = true;
     let isLoading = false;
-    const TOTAL_DEPARTMENTS = 7;   // <--- CHANGE THIS IF YOUR TOTAL DEPARTMENTS DIFFER
+    const TOTAL_DEPARTMENTS = 7;   // Change this if your total departments differ
 
-    // Helper functions (same as before)
+    // Helper functions (unchanged, same as before)
     function findColumn(headers, possibleNames) {
         for (let name of possibleNames) {
             let idx = headers.findIndex(h => h.toLowerCase().includes(name.toLowerCase()));
@@ -344,11 +392,23 @@
 
         // Department stats
         let { deptPercent, uniqueDepts } = computeDepartmentStats(allTransactions);
-        // Show participation as "X / TOTAL_DEPARTMENTS"
         document.getElementById('deptParticipatedKpi').innerHTML = `${uniqueDepts} / ${TOTAL_DEPARTMENTS}`;
+        
+        // Build department list with bars
         let deptListHtml = '';
         for (let d of deptPercent) {
-            deptListHtml += `<li><span>${d.dept}</span><span class="dept-percent">${d.percent}%</span></li>`;
+            deptListHtml += `
+                <li>
+                    <span class="dept-name">${d.dept}</span>
+                    <div class="dept-stats">
+                        <span class="dept-qty">${d.qty} item(s)</span>
+                        <span class="dept-percent">${d.percent}%</span>
+                    </div>
+                    <div class="dept-bar-container">
+                        <div class="dept-bar" style="width: ${d.percent}%;"></div>
+                    </div>
+                </li>
+            `;
         }
         document.getElementById('deptContributionList').innerHTML = deptListHtml || '<li>No data</li>';
 
@@ -363,7 +423,7 @@
         });
 
         // Category summary (IN only)
-        let { catArray, totalIn: totalInCat } = computeCategoryInSummary(allTransactions);
+        let { catArray } = computeCategoryInSummary(allTransactions);
         let catTableBody = document.querySelector('#categorySummaryTable tbody');
         catTableBody.innerHTML = '';
         for (let c of catArray) {
@@ -423,7 +483,7 @@
     function renderStockTable(items) {
         let tbody = document.getElementById('stockTableBody');
         tbody.innerHTML = '';
-        if (!items.length) { tbody.innerHTML = '<tr><td colspan="6">No stock data</td></tr>'; return; }
+        if (!items.length) { tbody.innerHTML = '<tr><td colspan="6">No stock data</td><tr>'; return; }
         for (let i=0; i<items.length; i++) {
             let cat = items[i];
             let row = tbody.insertRow();

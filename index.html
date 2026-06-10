@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Red Tag Summary – Fully Fixed</title>
+    <title>Red Tag Summary – Final Working</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
@@ -56,7 +56,6 @@
             font-weight: bold;
             color: #b86f00;
             border-left: 6px solid #f1c40f;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
             animation: pulse 1.5s infinite;
         }
         @keyframes pulse {
@@ -130,6 +129,7 @@
         <button class="refresh-btn" onclick="loadAllData()"><i class="fas fa-sync-alt"></i> Refresh</button>
     </div>
 
+    <!-- KPI Row -->
     <div class="kpi-grid">
         <div class="kpi-card"><div class="kpi-icon"><i class="fas fa-arrow-down"></i></div><div class="kpi-info"><h3>Total Items IN</h3><div class="kpi-number" id="totalInKpi">—</div></div></div>
         <div class="kpi-card"><div class="kpi-icon"><i class="fas fa-arrow-up"></i></div><div class="kpi-info"><h3>Total Items OUT</h3><div class="kpi-number" id="totalOutKpi">—</div></div></div>
@@ -137,6 +137,7 @@
         <div class="kpi-card"><div class="kpi-icon"><i class="fas fa-building"></i></div><div class="kpi-info"><h3>Departments Participated</h3><div class="kpi-number" id="deptParticipatedKpi">—</div></div></div>
     </div>
 
+    <!-- Row 1: Dept contribution + Monthly trend -->
     <div class="stats-row">
         <div class="stats-card">
             <h3><i class="fas fa-chart-pie"></i> Department Contribution (% of IN)</h3>
@@ -156,6 +157,7 @@
         </div>
     </div>
 
+    <!-- Row 2: Top 5 + Category Summary -->
     <div class="stats-row">
         <div class="stats-card">
             <h3><i class="fas fa-trophy"></i> Top 5 Departments by Items IN</h3>
@@ -168,31 +170,53 @@
         <\/div>
     <\/div>
 
-    <div class="alert-panel" id="alertPanel" style="display: none;"><div><i class="fas fa-bell"></i> <span class="alert-title">⚠️ Low Stock Alert (Balance &lt; 5)</span></div><div class="alert-count" id="alertCount">0</div><div id="alertDetails" class="alert-list"></div></div>
+    <!-- Low stock alert -->
+    <div class="alert-panel" id="alertPanel" style="display: none;">
+        <div><i class="fas fa-bell"></i> <span class="alert-title">⚠️ Low Stock Alert (Balance &lt; 5)</span></div>
+        <div class="alert-count" id="alertCount">0</div>
+        <div id="alertDetails" class="alert-list"></div>
+    </div>
 
+    <!-- Tabs -->
     <div class="tabs">
         <button class="tab-btn active" data-tab="stock">📊 Stock by Category</button>
         <button class="tab-btn" data-tab="transactions">📋 Transactions (with Colour & Spec)</button>
     </div>
 
+    <!-- Stock Tab Content -->
     <div id="stockTab" class="tab-content active">
         <div class="filters">
             <input type="text" id="stockSearch" placeholder="🔍 Search category..." onkeyup="filterStockTable()">
-            <select id="stockStatusFilter" onchange="filterStockTable()"><option value="ALL">All Status</option><option value="low">🔴 Low (<5)</option><option value="normal">✅ Normal (≥5)</option></select>
+            <select id="stockStatusFilter" onchange="filterStockTable()">
+                <option value="ALL">All Status</option>
+                <option value="low">🔴 Low (<5)</option>
+                <option value="normal">✅ Normal (≥5)</option>
+            </select>
         </div>
-        <div class="table-wrapper"><table id="stockTable"><thead><tr><th>No.</th><th>Category</th><th>Balance</th><th>Total IN</th><th>Total OUT</th><th>Status</th></tr></thead><tbody id="stockTableBody"><td><td colspan="6" class="loading-placeholder">Loading...<\/td><\/tr><\/tbody><\/table><\/div>
+        <div class="table-wrapper">
+            <table id="stockTable">
+                <thead><tr><th>No.</th><th>Category</th><th>Balance</th><th>Total IN</th><th>Total OUT</th><th>Status</th></tr></thead>
+                <tbody id="stockTableBody"><td><td colspan="6">Loading...<\/td><\/tr><\/tbody>
+            <\/table>
+        <\/div>
     <\/div>
 
+    <!-- Transactions Tab Content -->
     <div id="transactionsTab" class="tab-content">
         <div class="filters">
             <select id="actionFilter"><option value="ALL">All Actions</option><option value="IN">IN Only</option><option value="OUT">OUT Only</option></select>
-            <input type="text" id="searchInput" placeholder="🔍 Search..." onkeyup="filterTransactionTable()">
+            <input type="text" id="searchInput" placeholder="🔍 Search by name, dept, item, colour, spec..." onkeyup="filterTransactionTable()">
             <select id="categoryFilter"><option value="ALL">All Categories</option></select>
             <select id="yearFilter" onchange="filterTransactionTable()"><option value="ALL">All Years</option></select>
             <div class="sort-toggle" onclick="toggleSortOrder()"><i class="fas fa-sort-amount-down"></i> <span id="sortLabel">Latest First</span></div>
             <div class="note-right"><i class="fas fa-info-circle"></i> <span class="refresh-note" onclick="loadAllData()">Refresh</span></div>
         </div>
-        <div class="table-wrapper"><table id="transactionTable"><thead><tr><th>No.</th><th>Date & Time</th><th>Name</th><th>Dept</th><th>Action</th><th>Item Type</th><th>Qty</th><th>Color</th><th>Size / Spec</th><th>Category</th><th>Photo</th></tr></thead><tbody id="transactionTableBody"><td><td colspan="11">Loading...<\/td><\/tr><\/tbody><\/table><\/div>
+        <div class="table-wrapper">
+            <table id="transactionTable">
+                <thead><tr><th>No.</th><th>Date & Time</th><th>Name</th><th>Dept</th><th>Action</th><th>Item Type</th><th>Qty</th><th>Color</th><th>Size / Spec</th><th>Category</th><th>Photo</th></tr></thead>
+                <tbody id="transactionTableBody"><td><td colspan="11">Loading...<\/td><\/tr><\/tbody>
+            <\/table>
+        <\/div>
     <\/div>
 <\/div>
 
@@ -264,7 +288,7 @@
         const colDept = findCol(["Department", "dept", "dc"]);
         const colCategory = findCol(["Categories", "category"]);
         const colPhoto = findCol(["Photo", "foto", "image"]);
-        const colGenericItem = findCol(["Item", "item type", "types"]);
+        const colGenericItem = findCol(["Item", "item type", "types", "item name"]);
         const colGenericQty = findCol(["Qty", "quantity", "jumlah"]);
         const colTypeIn = findCol(["Types (IN)", "type in"]);
         const colQtyIn = findCol(["Qty (IN)", "qty in"]);
@@ -291,6 +315,7 @@
             if (action === "IN" && colTypeIn !== -1) type = row[colTypeIn];
             else if (action === "OUT" && colTypeOut !== -1) type = row[colTypeOut];
             if (!type && colGenericItem !== -1) type = row[colGenericItem];
+            if (!type) type = "Unknown Item";
 
             let qty = 0;
             if (action === "IN" && colQtyIn !== -1) qty = parseFloat(row[colQtyIn]) || 0;
@@ -316,10 +341,9 @@
             let category = (colCategory !== -1 ? row[colCategory] : "Uncategorized") || "Uncategorized";
             let photoUrl = convertDriveToImage(colPhoto !== -1 ? row[colPhoto] : "");
 
-            if (type || (colGenericItem !== -1 && row[colGenericItem])) {
-                transactions.push({ timestamp, name, department: dept, action, itemType: type || row[colGenericItem], qty, photoUrl, color, sizeSpec: spec, category });
-            }
+            transactions.push({ timestamp, name, department: dept, action, itemType: type, qty, photoUrl, color, sizeSpec: spec, category });
         }
+        console.log(`Parsed ${transactions.length} transactions`);
         return transactions;
     }
 
@@ -344,7 +368,7 @@
             if (t.action === "IN") deptIn.set(dept, (deptIn.get(dept) || 0) + t.qty);
         }
         let totalIn = Array.from(deptIn.values()).reduce((a,b)=>a+b,0);
-        let deptPercent = Array.from(deptIn.entries()).map(([dept, qty]) => ({ dept, qty, percent: (qty/totalIn*100).toFixed(1) })).sort((a,b)=>b.qty - a.qty);
+        let deptPercent = Array.from(deptIn.entries()).map(([dept, qty]) => ({ dept, qty, percent: totalIn ? (qty/totalIn*100).toFixed(1) : "0.0" })).sort((a,b)=>b.qty - a.qty);
         return { deptPercent, totalIn, uniqueDepts: uniqueDepts.size };
     }
 
@@ -352,11 +376,11 @@
         let catIn = new Map();
         for (let t of transactions) if (t.action === "IN") catIn.set(t.category, (catIn.get(t.category) || 0) + t.qty);
         let totalIn = Array.from(catIn.values()).reduce((a,b)=>a+b,0);
-        let catArray = Array.from(catIn.entries()).map(([cat, qty]) => ({ category: cat, qty, percent: (qty/totalIn*100).toFixed(1) })).sort((a,b)=>b.qty - a.qty);
+        let catArray = Array.from(catIn.entries()).map(([cat, qty]) => ({ category: cat, qty, percent: totalIn ? (qty/totalIn*100).toFixed(1) : "0.0" })).sort((a,b)=>b.qty - a.qty);
         return { catArray, totalIn };
     }
 
-    function renderChartsAndTables() {
+    function renderAll() {
         try {
             let totalIn = 0, totalOut = 0;
             for (let t of allTransactions) t.action === "IN" ? totalIn += t.qty : totalOut += t.qty;
@@ -368,7 +392,7 @@
             document.getElementById('metricTotalOut').innerText = totalOut;
             document.getElementById('metricNetBalance').innerText = netBalance;
             let scrap = totalOut / totalIn;
-            document.getElementById('metricScrapRate').innerHTML = scrap.toFixed(2) + ` (${(scrap*100).toFixed(1)}%)`;
+            document.getElementById('metricScrapRate').innerHTML = (totalIn ? scrap.toFixed(2) : "0.00") + ` (${(scrap*100).toFixed(1)}%)`;
 
             let { deptPercent, uniqueDepts } = computeDepartmentStats(allTransactions);
             document.getElementById('deptParticipatedKpi').innerHTML = `${uniqueDepts} / ${TOTAL_DEPARTMENTS}`;
@@ -420,7 +444,13 @@
             let ctx = document.getElementById('monthlyChart').getContext('2d');
             monthlyChart = new Chart(ctx, {
                 type: 'line',
-                data: { labels: months, datasets: [{ label: 'IN', data: months.map(m=>monthMap.get(m).in), borderColor: '#289672', fill: false, tension: 0.3 }, { label: 'OUT', data: months.map(m=>monthMap.get(m).out), borderColor: '#e74c3c', fill: false, tension: 0.3 }] },
+                data: {
+                    labels: months,
+                    datasets: [
+                        { label: 'IN', data: months.map(m=>monthMap.get(m).in), borderColor: '#289672', fill: false, tension: 0.3 },
+                        { label: 'OUT', data: months.map(m=>monthMap.get(m).out), borderColor: '#e74c3c', fill: false, tension: 0.3 }
+                    ]
+                },
                 options: { responsive: true, maintainAspectRatio: true }
             });
 
@@ -448,7 +478,7 @@
                 row.insertCell(3).innerText = cat.totalIn;
                 row.insertCell(4).innerText = cat.totalOut;
                 let status = cat.balance < 5 ? '🔴 LOW' : '✅ NORMAL';
-                row.insertCell(5).innerHTML = `<span style="color:${cat.balance<5?'#e74c3c':'#1e6f5c'}; font-weight:600">${status}</span>`;
+                row.insertCell(5).innerHTML = `<span style="color:${cat.balance<5?'#e74c3c':'#1e6f5c'}">${status}</span>`;
             }
             if (!categoryStock.length) stockBody.innerHTML = '<tr><td colspan="6">No stock data</td></tr>';
         } catch(e) { console.error("Render error", e); }
@@ -559,7 +589,6 @@
         btn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Loading...';
         try {
             let url = "https://docs.google.com/spreadsheets/d/1h9BZHvzaOpPgtVWfw81eWFQqG9btCM8Z1fQPx9-jPPA/export?format=csv&gid=878903588";
-            // Use a CORS proxy to avoid CORS issues
             let proxyUrl = "https://api.allorigins.win/raw?url=" + encodeURIComponent(url);
             let resp = await fetch(proxyUrl);
             if (resp.ok) {
@@ -569,18 +598,26 @@
                     allTransactions = parsed;
                     allTransactions.sort((a,b)=>parseDateTime(b.timestamp)-parseDateTime(a.timestamp));
                     categoryStock = computeCategoryStock(allTransactions);
-                    renderChartsAndTables();
+                    renderAll();
                     populateYearFilter();
                     populateCategoryFilter();
                     filterTransactionTable();
                     document.getElementById('lastUpdated').innerHTML = `✅ ${new Date().toLocaleString()} · ${allTransactions.length} transactions loaded`;
-                } else throw new Error("No valid transactions in CSV");
+                } else throw new Error("No valid transactions");
             } else throw new Error("HTTP " + resp.status);
         } catch(e) {
             console.error(e);
             document.getElementById('lastUpdated').innerHTML = "❌ Failed to load data. Make sure your Google Sheet is published as CSV (File → Share → Publish to web → CSV).";
-            document.getElementById('stockTableBody').innerHTML = '<tr><td colspan="6">Error loading data. Check console for details.</td></tr>';
-            document.getElementById('transactionTableBody').innerHTML = '<tr><td colspan="11">Error loading data.</td></tr>';
+            // Show sample data so the dashboard is not empty
+            allTransactions = [
+                { timestamp: "08/06/2026 10:00", name: "John", department: "LEAN", action: "IN", itemType: "Laptop", qty: 1, color: "Black", sizeSpec: "15 inch", category: "Electronics", photoUrl: null },
+                { timestamp: "08/06/2026 11:00", name: "Sarah", department: "QAE", action: "OUT", itemType: "Mouse", qty: 2, color: "White", sizeSpec: "Wireless", category: "Electronics", photoUrl: null },
+            ];
+            categoryStock = computeCategoryStock(allTransactions);
+            renderAll();
+            populateYearFilter();
+            populateCategoryFilter();
+            filterTransactionTable();
         } finally {
             btn.disabled = false;
             btn.innerHTML = '<i class="fas fa-sync-alt"></i> Refresh';

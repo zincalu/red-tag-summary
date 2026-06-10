@@ -109,11 +109,13 @@
         <div class="stats-card">
             <h3><i class="fas fa-table"></i> Category Summary (Items IN)</h3>
             <table class="category-table" id="categorySummaryTable">
-                <thead><tr><th>Category</th><th>Items IN</th><th>% of Total</th></tr></thead>
-                <tbody><tr><td colspan="3">Loading...<\/td><\/tr><\/tbody>
-            <\/table>
-        <\/div>
-    <\/div>
+                <thead>
+                    <tr><th>Category</th><th>Items IN</th><th>% of Total</th></tr>
+                </thead>
+                <tbody><tr><td colspan="3">Loading...</td></tr></tbody>
+            </table>
+        </div>
+    </div>
 
     <!-- Top 5 & Monthly trend -->
     <div class="stats-row">
@@ -134,12 +136,13 @@
         <div id="alertDetails" class="alert-list"></div>
     </div>
 
-    <!-- Tabs (Stock & Transactions) - THESE WERE MISSING IN YOUR VIEW -->
+    <!-- Tabs for Stock and Transactions -->
     <div class="tabs">
         <button class="tab-btn active" data-tab="stock">📊 Stock by Category</button>
         <button class="tab-btn" data-tab="transactions">📋 Transactions (with Colour & Spec)</button>
     </div>
 
+    <!-- Stock Tab Content -->
     <div id="stockTab" class="tab-content active">
         <div class="filters">
             <input type="text" id="stockSearch" placeholder="🔍 Search category..." onkeyup="filterStockTable()">
@@ -151,12 +154,15 @@
         </div>
         <div class="table-wrapper">
             <table id="stockTable">
-                <thead><tr><th>No.</th><th>Category</th><th>Balance</th><th>Total IN</th><th>Total OUT</th><th>Status</th></tr></thead>
-                <tbody id="stockTableBody"><tr><td colspan="6" class="loading-placeholder">Loading...<\/td><\/tr><\/tbody>
-            <\/table>
-        <\/div>
-    <\/div>
+                <thead>
+                    <tr><th>No.</th><th>Category</th><th>Balance</th><th>Total IN</th><th>Total OUT</th><th>Status</th></tr>
+                </thead>
+                <tbody id="stockTableBody"><tr><td colspan="6" class="loading-placeholder">Loading...</td></tr></tbody>
+            </table>
+        </div>
+    </div>
 
+    <!-- Transactions Tab Content -->
     <div id="transactionsTab" class="tab-content">
         <div class="filters">
             <select id="actionFilter"><option value="ALL">All Actions</option><option value="IN">IN Only</option><option value="OUT">OUT Only</option></select>
@@ -168,12 +174,14 @@
         </div>
         <div class="table-wrapper">
             <table id="transactionTable">
-                <thead><tr><th>No.</th><th>Date</th><th>Name</th><th>Dept</th><th>Action</th><th>Item Type</th><th>Qty</th><th>Color</th><th>Size/Spec</th><th>Category</th><th>Photo</th></tr></thead>
-                <tbody id="transactionTableBody"><tr><td colspan="11">Loading...<\/td><\/tr><\/tbody>
-            <\/table>
-        <\/div>
-    <\/div>
-<\/div>
+                <thead>
+                    <tr><th>No.</th><th>Date</th><th>Name</th><th>Dept</th><th>Action</th><th>Item Type</th><th>Qty</th><th>Color</th><th>Size/Spec</th><th>Category</th><th>Photo</th></tr>
+                </thead>
+                <tbody id="transactionTableBody"><tr><td colspan="11">Loading...</td></tr></tbody>
+            </table>
+        </div>
+    </div>
+</div>
 
 <div id="imageModal" class="modal" onclick="closeModal()">
     <span class="close-modal" onclick="event.stopPropagation(); closeModal()">&times;</span>
@@ -188,7 +196,7 @@
     let isLoading = false;
     const TOTAL_DEPARTMENTS = 7;
 
-    // ---------- Helper functions (same as before, but with error handling) ----------
+    // Helper functions (unchanged, but included for completeness)
     function findColumn(headers, possibleNames) {
         for (let name of possibleNames) {
             let idx = headers.findIndex(h => h.toLowerCase().includes(name.toLowerCase()));
@@ -468,7 +476,8 @@
             row.insertCell(4).innerHTML = `<span class="badge-action ${t.action==='IN'?'badge-in':'badge-out'}">${t.action}</span>`;
             row.insertCell(5).innerText = t.itemType;
             row.insertCell(6).innerText = t.qty;
-            row.insertCell(7).innerHTML = t.color ? `<span class="color-tag"><span class="color-dot" style="background:${getColorStyle(t.color)}"></span>${t.color}</span>` : '—';
+            if (t.color) row.insertCell(7).innerHTML = `<span class="color-tag"><span class="color-dot" style="background:${getColorStyle(t.color)}"></span>${t.color}</span>`;
+            else row.insertCell(7).innerText = '—';
             row.insertCell(8).innerText = t.sizeSpec || '—';
             row.insertCell(9).innerText = t.category;
             let photoCell = row.insertCell(10);
@@ -559,7 +568,6 @@
         } catch(e) {
             console.error(e);
             document.getElementById('lastUpdated').innerHTML = "❌ Failed to load data. Check CSV publish.";
-            // Still show empty tables
             renderStockTable([]);
             renderTransactionTable([]);
         } finally {

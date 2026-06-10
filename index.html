@@ -60,10 +60,14 @@
         .tabs { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #e2edf2; padding-bottom: 10px; flex-wrap: wrap; }
         .tab-btn { background: none; border: none; padding: 10px 24px; font-size: 1rem; font-weight: 600; cursor: pointer; border-radius: 30px; color: #597a8b; transition: 0.2s; }
         .tab-btn.active { background: #1e6f5c; color: white; }
+        /* FIX: hide inactive tabs, show only active */
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
         .filters { display: flex; gap: 14px; margin-bottom: 20px; flex-wrap: wrap; align-items: center; }
         .filters select, .filters input { padding: 10px 20px; border-radius: 40px; border: 1px solid #cfdfe9; background: white; font-size: 0.85rem; }
         .table-wrapper { overflow-x: auto; border-radius: 20px; max-height: 550px; overflow-y: auto; }
-        table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.8rem; min-width: 1000px; }
         th { background: #f4f9fc; padding: 14px 10px; text-align: left; font-weight: 700; color: #1f5063; border-bottom: 1px solid #e2edf2; position: sticky; top: 0; z-index: 10; }
         td { padding: 10px 10px; border-bottom: 1px solid #ecf3f7; vertical-align: middle; }
         .stock-badge { display: inline-block; padding: 4px 12px; border-radius: 40px; font-weight: 600; font-size: 0.75rem; }
@@ -117,11 +121,44 @@
     <!-- Low stock alert panel -->
     <div class="alert-panel" id="alertPanel" style="display: none;"><div><i class="fas fa-bell"></i> <span class="alert-title">⚠️ Low Stock Alert (Balance &lt; 5)</span></div><div class="alert-count" id="alertCount">0</div><div id="alertDetails" class="alert-list"></div></div>
 
-    <!-- TABS -->
-    <div class="tabs"><button class="tab-btn active" data-tab="stock">📊 Stock by Category</button><button class="tab-btn" data-tab="transactions">📋 Transactions (w/ Scrap Value)</button></div>
-    <div id="stockTab" class="tab-content active"><div class="filters"><input type="text" id="stockSearch" placeholder="🔍 Search category..." onkeyup="filterStockTable()"><select id="stockStatusFilter" onchange="filterStockTable()"><option value="ALL">All Status</option><option value="low">🔴 Low (<5)</option><option value="normal">✅ Normal (≥5)</option></select></div><div class="table-wrapper"><table id="stockTable"><thead><tr><th>No.</th><th>Category</th><th>Balance</th><th>Total IN</th><th>Total OUT</th><th>Status</th></tr></thead><tbody id="stockTableBody"><tr><td colspan="6">Loading...</td></tr></tbody></table></div></div>
+    <!-- TABS with fix: only active tab visible -->
+    <div class="tabs">
+        <button class="tab-btn active" data-tab="stock">📊 Stock by Category</button>
+        <button class="tab-btn" data-tab="transactions">📋 Transactions (w/ Scrap Value)</button>
+    </div>
+    <div id="stockTab" class="tab-content active">
+        <div class="filters">
+            <input type="text" id="stockSearch" placeholder="🔍 Search category..." onkeyup="filterStockTable()">
+            <select id="stockStatusFilter" onchange="filterStockTable()">
+                <option value="ALL">All Status</option>
+                <option value="low">🔴 Low (<5)</option>
+                <option value="normal">✅ Normal (≥5)</option>
+            </select>
+        </div>
+        <div class="table-wrapper">
+            <table id="stockTable">
+                <thead><tr><th>No.</th><th>Category</th><th>Balance</th><th>Total IN</th><th>Total OUT</th><th>Status</th></tr></thead>
+                <tbody id="stockTableBody"><tr><td colspan="6">Loading...</td></tr></tbody>
+            </table>
+        </div>
+    </div>
 
-    <div id="transactionsTab" class="tab-content"><div class="filters"><select id="actionFilter"><option value="ALL">All Actions</option><option value="IN">IN Only</option><option value="OUT">OUT Only</option></select><input type="text" id="searchInput" placeholder="🔍 Search..." onkeyup="filterTransactionTable()"><select id="categoryFilter"><option value="ALL">All Categories</option></select><select id="yearFilter" onchange="filterTransactionTable()"><option value="ALL">All Years</option></select><div class="sort-toggle" onclick="toggleSortOrder()"><i class="fas fa-sort-amount-down"></i> <span id="sortLabel">Latest First</span></div><div class="note-right"><i class="fas fa-dollar-sign"></i> Scrap column shows revenue/cost value</div></div><div class="table-wrapper"><table id="transactionTable"><thead><tr><th>No.</th><th>Date</th><th>Name</th><th>Dept</th><th>Action</th><th>Item Type</th><th>Qty</th><th>Color</th><th>Size/Spec</th><th>Category</th><th>Scrap Value</th><th>Photo</th></tr></thead><tbody id="transactionTableBody"><tr><td colspan="12">Loading...</td></tr></tbody></table></div></div>
+    <div id="transactionsTab" class="tab-content">
+        <div class="filters">
+            <select id="actionFilter"><option value="ALL">All Actions</option><option value="IN">IN Only</option><option value="OUT">OUT Only</option></select>
+            <input type="text" id="searchInput" placeholder="🔍 Search..." onkeyup="filterTransactionTable()">
+            <select id="categoryFilter"><option value="ALL">All Categories</option></select>
+            <select id="yearFilter" onchange="filterTransactionTable()"><option value="ALL">All Years</option></select>
+            <div class="sort-toggle" onclick="toggleSortOrder()"><i class="fas fa-sort-amount-down"></i> <span id="sortLabel">Latest First</span></div>
+            <div class="note-right"><i class="fas fa-dollar-sign"></i> Scrap column shows revenue/cost value</div>
+        </div>
+        <div class="table-wrapper">
+            <table id="transactionTable">
+                <thead><tr><th>No.</th><th>Date</th><th>Name</th><th>Dept</th><th>Action</th><th>Item Type</th><th>Qty</th><th>Color</th><th>Size/Spec</th><th>Category</th><th>Scrap Value</th><th>Photo</th></tr></thead>
+                <tbody id="transactionTableBody"><tr><td colspan="12">Loading...</td></tr></tbody>
+            </table>
+        </div>
+    </div>
 </div>
 
 <div id="imageModal" class="modal" onclick="closeModal()"><span class="close-modal" onclick="event.stopPropagation(); closeModal()">&times;</span><img id="modalImage" src="" alt="Enlarged view" onclick="event.stopPropagation()"></div>
@@ -331,6 +368,7 @@
         finally { btn.disabled=false; btn.innerHTML='<i class="fas fa-sync-alt"></i> Refresh'; isLoading=false; }
     }
 
+    // Tab switching
     document.querySelectorAll('.tab-btn').forEach(btn=>btn.addEventListener('click',()=>{ let tab=btn.dataset.tab; document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active')); document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active')); document.getElementById(`${tab}Tab`).classList.add('active'); btn.classList.add('active'); if(tab==='transactions') filterTransactionTable(); }));
     document.getElementById('actionFilter')?.addEventListener('change',filterTransactionTable);
     document.getElementById('categoryFilter')?.addEventListener('change',filterTransactionTable);

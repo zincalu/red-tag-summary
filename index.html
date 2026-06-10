@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Red Tag Summary – Scrap Cost Revenue Analytics</title>
+    <title>Red Tag Summary – Scrap Cost Revenue</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
@@ -18,7 +18,7 @@
         .last-updated { color: #4a6272; font-size: 0.8rem; margin-top: 6px; }
 
         .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 20px; margin-bottom: 28px; }
-        .kpi-card { background: white; padding: 18px 16px; border-radius: 28px; display: flex; align-items: center; gap: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); transition: 0.1s; }
+        .kpi-card { background: white; padding: 18px 16px; border-radius: 28px; display: flex; align-items: center; gap: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
         .kpi-icon { width: 52px; height: 52px; background: #e0f2ef; border-radius: 40px; display: flex; align-items: center; justify-content: center; font-size: 1.7rem; color: #1e6f5c; }
         .kpi-info h3 { font-size: 0.75rem; color: #597a8b; margin-bottom: 6px; letter-spacing: 0.3px; }
         .kpi-number { font-size: 1.7rem; font-weight: 800; color: #1a2c38; line-height: 1.2; }
@@ -28,9 +28,8 @@
         .stats-card { flex: 1; min-width: 280px; background: white; padding: 20px; border-radius: 24px; box-shadow: 0 2px 10px rgba(0,0,0,0.04); }
         .stats-card h3 { margin-bottom: 18px; font-size: 1.2rem; color: #1e6f5c; border-left: 4px solid #1e6f5c; padding-left: 12px; display: flex; align-items: center; gap: 8px; }
 
-        /* list styles (same as before) */
-        .dept-list, .top-dept-list, .scrap-list { list-style: none; }
-        .dept-list li, .top-dept-list li, .scrap-list li {
+        .dept-list, .top-dept-list { list-style: none; }
+        .dept-list li, .top-dept-list li {
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -42,11 +41,9 @@
         }
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
         .dept-name { font-weight: 600; width: 100px; display: flex; align-items: center; gap: 6px; }
-        .scrap-value { font-weight: 700; color: #e67e22; background: #fff2e0; padding: 2px 8px; border-radius: 40px; font-size: 0.8rem; }
         .dept-bar-container { flex: 1; min-width: 120px; background-color: #ecf0f1; border-radius: 20px; height: 12px; overflow: hidden; }
         .dept-bar { background-color: #1e6f5c; width: 0%; height: 100%; border-radius: 20px; transition: width 0.5s cubic-bezier(0.2, 0.9, 0.4, 1.1); }
         .dept-bar.gold-bar { background-color: #f1c40f; }
-        .dept-bar.scrap-bar { background-color: #e67e22; }
 
         .category-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
         .category-table th, .category-table td { padding: 8px 6px; text-align: left; border-bottom: 1px solid #ecf0f1; }
@@ -85,9 +82,8 @@
         .close-modal { position: absolute; top: 25px; right: 35px; font-size: 42px; color: white; cursor: pointer; }
         .congrats-message { margin-top: 16px; background: linear-gradient(135deg, #fff8e7, #ffe6b3); border-radius: 40px; padding: 12px 16px; text-align: center; font-weight: bold; color: #b86f00; border-left: 6px solid #f1c40f; }
         .note-right { margin-left: auto; font-size: 0.7rem; color: #e67e22; background: #fff3e0; padding: 5px 12px; border-radius: 30px; }
+        .badge-scrap { background: #fdebd0; color: #d35400; font-size: 0.7rem; border-radius: 20px; padding: 2px 8px; font-weight: 600; }
         @media (max-width: 700px) { .dept-name { width: auto; } .dept-bar-container { min-width: 80px; } }
-        .badge-scrap { background: #fdebd0; color: #d35400; font-size: 0.7rem; border-radius: 20px; padding: 2px 8px; }
-        .scrap-header-icon { color: #e67e22; }
     </style>
 </head>
 <body>
@@ -97,7 +93,7 @@
         <button class="refresh-btn" onclick="loadAllData()"><i class="fas fa-sync-alt"></i> Refresh</button>
     </div>
 
-    <!-- KPI Row with Scrap Cost Revenue included -->
+    <!-- KPI Row with Scrap Total -->
     <div class="kpi-grid">
         <div class="kpi-card"><div class="kpi-icon"><i class="fas fa-arrow-down"></i></div><div class="kpi-info"><h3>Total Items IN</h3><div class="kpi-number" id="totalInKpi">—</div></div></div>
         <div class="kpi-card"><div class="kpi-icon"><i class="fas fa-arrow-up"></i></div><div class="kpi-info"><h3>Total Items OUT</h3><div class="kpi-number" id="totalOutKpi">—</div></div></div>
@@ -118,12 +114,6 @@
         <div class="stats-card"><h3><i class="fas fa-table"></i> Category Summary (Items IN)</h3><table class="category-table" id="categorySummaryTable"><thead><tr><th>Category</th><th>Items IN</th><th>% of Total</th></tr></thead><tbody><tr><td colspan="3">Loading...</td></tr></tbody></table></div>
     </div>
 
-    <!-- NEW ROW: Scrap Cost Revenue Analysis (by Department & by Category) -->
-    <div class="stats-row">
-        <div class="stats-card"><h3><i class="fas fa-coins scrap-header-icon"></i> Scrap Value by Department</h3><ul class="scrap-list" id="scrapByDeptList"><li>No scrap data</li></ul><div class="note-right" style="margin-top: 10px;"><i class="fas fa-info-circle"></i> Positive = revenue, Negative = cost</div></div>
-        <div class="stats-card"><h3><i class="fas fa-chart-simple scrap-header-icon"></i> Scrap Value by Category</h3><ul class="scrap-list" id="scrapByCategoryList"><li>No scrap data</li></ul></div>
-    </div>
-
     <!-- Low stock alert panel -->
     <div class="alert-panel" id="alertPanel" style="display: none;"><div><i class="fas fa-bell"></i> <span class="alert-title">⚠️ Low Stock Alert (Balance &lt; 5)</span></div><div class="alert-count" id="alertCount">0</div><div id="alertDetails" class="alert-list"></div></div>
 
@@ -131,7 +121,7 @@
     <div class="tabs"><button class="tab-btn active" data-tab="stock">📊 Stock by Category</button><button class="tab-btn" data-tab="transactions">📋 Transactions (w/ Scrap Value)</button></div>
     <div id="stockTab" class="tab-content active"><div class="filters"><input type="text" id="stockSearch" placeholder="🔍 Search category..." onkeyup="filterStockTable()"><select id="stockStatusFilter" onchange="filterStockTable()"><option value="ALL">All Status</option><option value="low">🔴 Low (<5)</option><option value="normal">✅ Normal (≥5)</option></select></div><div class="table-wrapper"><table id="stockTable"><thead><tr><th>No.</th><th>Category</th><th>Balance</th><th>Total IN</th><th>Total OUT</th><th>Status</th></tr></thead><tbody id="stockTableBody"><tr><td colspan="6">Loading...</td></tr></tbody></table></div></div>
 
-    <div id="transactionsTab" class="tab-content"><div class="filters"><select id="actionFilter"><option value="ALL">All Actions</option><option value="IN">IN Only</option><option value="OUT">OUT Only</option></select><input type="text" id="searchInput" placeholder="🔍 Search..." onkeyup="filterTransactionTable()"><select id="categoryFilter"><option value="ALL">All Categories</option></select><select id="yearFilter" onchange="filterTransactionTable()"><option value="ALL">All Years</option></select><div class="sort-toggle" onclick="toggleSortOrder()"><i class="fas fa-sort-amount-down"></i> <span id="sortLabel">Latest First</span></div><div class="note-right"><i class="fas fa-dollar-sign"></i> Scrap column added</div></div><div class="table-wrapper"><table id="transactionTable"><thead><tr><th>No.</th><th>Date</th><th>Name</th><th>Dept</th><th>Action</th><th>Item Type</th><th>Qty</th><th>Color</th><th>Size/Spec</th><th>Category</th><th>Scrap Value</th><th>Photo</th></tr></thead><tbody id="transactionTableBody"><tr><td colspan="12">Loading...</td></tr></tbody></table></div></div>
+    <div id="transactionsTab" class="tab-content"><div class="filters"><select id="actionFilter"><option value="ALL">All Actions</option><option value="IN">IN Only</option><option value="OUT">OUT Only</option></select><input type="text" id="searchInput" placeholder="🔍 Search..." onkeyup="filterTransactionTable()"><select id="categoryFilter"><option value="ALL">All Categories</option></select><select id="yearFilter" onchange="filterTransactionTable()"><option value="ALL">All Years</option></select><div class="sort-toggle" onclick="toggleSortOrder()"><i class="fas fa-sort-amount-down"></i> <span id="sortLabel">Latest First</span></div><div class="note-right"><i class="fas fa-dollar-sign"></i> Scrap column shows revenue/cost value</div></div><div class="table-wrapper"><table id="transactionTable"><thead><tr><th>No.</th><th>Date</th><th>Name</th><th>Dept</th><th>Action</th><th>Item Type</th><th>Qty</th><th>Color</th><th>Size/Spec</th><th>Category</th><th>Scrap Value</th><th>Photo</th></tr></thead><tbody id="transactionTableBody"><tr><td colspan="12">Loading...</td></tr></tbody></table></div></div>
 </div>
 
 <div id="imageModal" class="modal" onclick="closeModal()"><span class="close-modal" onclick="event.stopPropagation(); closeModal()">&times;</span><img id="modalImage" src="" alt="Enlarged view" onclick="event.stopPropagation()"></div>
@@ -144,7 +134,6 @@
     let isLoading = false;
     const TOTAL_DEPARTMENTS = 7;
 
-    // Helper: extract scrap numeric from any string (currency, empty, etc)
     function parseScrapValue(value) {
         if (!value || typeof value !== 'string') return 0;
         let cleaned = value.replace(/[$,€£]/g, '').trim();
@@ -193,7 +182,6 @@
         const colSpecIn = findColumn(headers, ["Sizes / Specs (IN)"]);
         const colSpecOut = findColumn(headers, ["Sizes / Specs (OUT)"]);
         const colDimension = findColumn(headers, ["Dimension", "spec"]);
-        // NEW: Scrap Cost Revenue column
         const colScrap = findColumn(headers, ["Scrap Cost Revenue", "scrap", "scrap value"]);
 
         if(colAction === -1) return [];
@@ -227,7 +215,6 @@
             let dept = colDept !== -1 ? row[colDept] : "";
             let category = (colCategory !== -1 ? row[colCategory] : "Uncategorized") || "Uncategorized";
             let photoUrl = convertDriveToImage(colPhoto !== -1 ? row[colPhoto] : "");
-            // Scrap value extraction
             let scrapRaw = (colScrap !== -1 && row[colScrap]) ? row[colScrap] : "";
             let scrapValue = parseScrapValue(scrapRaw);
             if(type || (colGenericItem !== -1 && row[colGenericItem])) {
@@ -257,50 +244,10 @@
         return { deptPercent, totalIn, uniqueDepts: uniqueDepts.size };
     }
 
-    function computeScrapAggregates(transactions) {
-        let scrapByDept = new Map();
-        let scrapByCategory = new Map();
-        let totalScrap = 0;
-        for(let t of transactions) {
-            if(t.scrapValue && t.scrapValue !== 0) {
-                totalScrap += t.scrapValue;
-                let dept = t.department || "Unknown";
-                scrapByDept.set(dept, (scrapByDept.get(dept)||0) + t.scrapValue);
-                let cat = t.category || "Uncategorized";
-                scrapByCategory.set(cat, (scrapByCategory.get(cat)||0) + t.scrapValue);
-            }
-        }
-        let sortedDept = Array.from(scrapByDept.entries()).map(([dept,val]) => ({ dept, value: val })).sort((a,b)=>Math.abs(b.value)-Math.abs(a.value));
-        let sortedCat = Array.from(scrapByCategory.entries()).map(([cat,val]) => ({ category: cat, value: val })).sort((a,b)=>Math.abs(b.value)-Math.abs(a.value));
-        return { totalScrap, scrapByDeptList: sortedDept, scrapByCategoryList: sortedCat };
-    }
-
-    function renderScrapAnalysis(transactions) {
-        let { totalScrap, scrapByDeptList, scrapByCategoryList } = computeScrapAggregates(transactions);
-        document.getElementById('totalScrapKpi').innerHTML = totalScrap.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        let scrapDeptHtml = '';
-        if(scrapByDeptList.length === 0) scrapDeptHtml = '<li>No scrap entries recorded</li>';
-        else {
-            let maxAbs = Math.max(...scrapByDeptList.map(d => Math.abs(d.value)), 0.01);
-            for(let d of scrapByDeptList) {
-                let percent = (Math.abs(d.value) / maxAbs * 100).toFixed(1);
-                let sign = d.value >= 0 ? '+' : '';
-                scrapDeptHtml += `<li><span class="dept-name">${d.dept}</span><span class="scrap-value">${sign}${d.value.toFixed(2)}</span><div class="dept-bar-container"><div class="dept-bar scrap-bar" style="width: ${percent}%;"></div></div></li>`;
-            }
-        }
-        document.getElementById('scrapByDeptList').innerHTML = scrapDeptHtml;
-
-        let scrapCatHtml = '';
-        if(scrapByCategoryList.length === 0) scrapCatHtml = '<li>No scrap values by category</li>';
-        else {
-            let maxCat = Math.max(...scrapByCategoryList.map(c => Math.abs(c.value)), 0.01);
-            for(let c of scrapByCategoryList) {
-                let percent = (Math.abs(c.value) / maxCat * 100).toFixed(1);
-                let sign = c.value >= 0 ? '+' : '';
-                scrapCatHtml += `<li><span class="dept-name">${c.category}</span><span class="scrap-value">${sign}${c.value.toFixed(2)}</span><div class="dept-bar-container"><div class="dept-bar scrap-bar" style="width: ${percent}%;"></div></div></li>`;
-            }
-        }
-        document.getElementById('scrapByCategoryList').innerHTML = scrapCatHtml;
+    function computeTotalScrap(transactions) {
+        let total = 0;
+        for(let t of transactions) if(t.scrapValue) total += t.scrapValue;
+        return total;
     }
 
     function updateSummaryStats() {
@@ -315,6 +262,10 @@
         document.getElementById('metricNetBalance').innerText = netBalance;
         let scrapRate = totalOut / (totalIn||1);
         document.getElementById('metricScrapRate').innerText = scrapRate.toFixed(3) + ` (${(scrapRate*100).toFixed(1)}%)`;
+        
+        let totalScrap = computeTotalScrap(allTransactions);
+        document.getElementById('totalScrapKpi').innerHTML = totalScrap.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        
         let { deptPercent, uniqueDepts } = computeDepartmentStats(allTransactions);
         document.getElementById('deptParticipatedKpi').innerHTML = `${uniqueDepts} / ${TOTAL_DEPARTMENTS}`;
         let deptListHtml = '';
@@ -332,18 +283,26 @@
         document.getElementById('topDeptsList').innerHTML = topHtml || '<li>No data</li>';
         let congratsDiv = document.getElementById('congratsMessage');
         if(firstDept) { document.getElementById('congratsText').innerHTML = `🎉 CONGRATULATIONS to ${firstDept} for being the TOP CONTRIBUTOR! 🎉`; congratsDiv.style.display = 'block'; } else congratsDiv.style.display = 'none';
-        let { catArray } = (()=>{ let map = new Map(); for(let t of allTransactions) if(t.action==="IN") map.set(t.category, (map.get(t.category)||0)+t.qty); let total=Array.from(map.values()).reduce((a,b)=>a+b,0); return { catArray: Array.from(map.entries()).map(([cat,qty])=>({category:cat,qty,percent:((qty/total)*100).toFixed(1)})).sort((a,b)=>b.qty-a.qty) }; })();
+        
+        let catMap = new Map();
+        for(let t of allTransactions) if(t.action==="IN") catMap.set(t.category, (catMap.get(t.category)||0)+t.qty);
+        let totalCatIn = Array.from(catMap.values()).reduce((a,b)=>a+b,0);
+        let catArray = Array.from(catMap.entries()).map(([cat,qty])=>({category:cat,qty,percent:((qty/totalCatIn)*100).toFixed(1)})).sort((a,b)=>b.qty-a.qty);
         let catBody = document.querySelector('#categorySummaryTable tbody'); catBody.innerHTML = '';
         for(let c of catArray) { let row = catBody.insertRow(); row.insertCell(0).innerHTML = `${getCategoryEmoji(c.category)} ${c.category}`; row.insertCell(1).innerText = c.qty; row.insertCell(2).innerText = `${c.percent}%`; }
         if(catArray.length===0) catBody.innerHTML = '<tr><td colspan="3">No IN transactions</td></tr>';
-        renderScrapAnalysis(allTransactions);
     }
 
     function getCategoryEmoji(cat) { let l=cat.toLowerCase(); if(l.includes('furniture')) return '🪑'; if(l.includes('machinery')) return '🏭'; if(l.includes('electrical')) return '⚡'; if(l.includes('mechanical')) return '⚙️'; if(l.includes('production')) return '🔧'; return '📦'; }
+    
     function renderMonthlyChart() { let monthMap=new Map(); for(let t of allTransactions){ let d=parseDateTime(t.timestamp); if(d&&!isNaN(d)){ let ym=`${d.getFullYear()}-${(d.getMonth()+1).toString().padStart(2,'0')}`; let cur=monthMap.get(ym)||{in:0,out:0}; if(t.action==="IN") cur.in+=t.qty; else cur.out+=t.qty; monthMap.set(ym,cur); } } let months=Array.from(monthMap.keys()).sort(); if(monthlyChart) monthlyChart.destroy(); let ctx=document.getElementById('monthlyChart').getContext('2d'); monthlyChart=new Chart(ctx,{type:'line',data:{labels:months,datasets:[{label:'IN',data:months.map(m=>monthMap.get(m).in),borderColor:'#289672',fill:false,tension:0.3},{label:'OUT',data:months.map(m=>monthMap.get(m).out),borderColor:'#e74c3c',fill:false,tension:0.3}]},options:{responsive:true,maintainAspectRatio:true}}); }
+    
     function updateLowStockAlert() { let low=categoryStock.filter(c=>c.balance<5); let panel=document.getElementById('alertPanel'); if(low.length){ panel.style.display='flex'; document.getElementById('alertCount').innerText=`${low.length} category(ies)`; let details='<strong>⚠️ Categories with balance <5:</strong>'; low.forEach(c=>{details+=`<div>• ${c.category}: ${c.balance} unit(s)</div>`;}); document.getElementById('alertDetails').innerHTML=details; } else panel.style.display='none'; }
+    
     function renderStockTable(items){ let tbody=document.getElementById('stockTableBody'); tbody.innerHTML=''; if(!items.length){tbody.innerHTML='<tr><td colspan="6">No stock data</td></tr>';return;} items.forEach((cat,i)=>{ let row=tbody.insertRow(); row.insertCell(0).innerText=i+1; row.insertCell(1).innerHTML=`<strong>${cat.category}</strong>`; let cls=cat.balance<5?'stock-low':'stock-high'; row.insertCell(2).innerHTML=`<span class="stock-badge ${cls}">${cat.balance}</span>`; row.insertCell(3).innerText=cat.totalIn; row.insertCell(4).innerText=cat.totalOut; let status=cat.balance<5?'🔴 LOW':'✅ NORMAL'; row.insertCell(5).innerHTML=`<span style="color:${cat.balance<5?'#e74c3c':'#1e6f5c'};font-weight:600">${status}</span>`; }); }
+    
     function renderTransactionTable(transactions){ let tbody=document.getElementById('transactionTableBody'); tbody.innerHTML=''; if(!transactions.length){tbody.innerHTML='<tr><td colspan="12">No transactions</td></tr>';return;} transactions.forEach((t,i)=>{ let row=tbody.insertRow(); row.insertCell(0).innerText=i+1; row.insertCell(1).innerText=t.timestamp||'?'; row.insertCell(2).innerText=t.name||'-'; row.insertCell(3).innerText=t.department||'-'; row.insertCell(4).innerHTML=`<span class="badge-action ${t.action==='IN'?'badge-in':'badge-out'}">${t.action}</span>`; row.insertCell(5).innerText=t.itemType; row.insertCell(6).innerText=t.qty; if(t.color) row.insertCell(7).innerHTML=`<span class="color-tag"><span class="color-dot" style="background:${getColorStyle(t.color)}"></span>${t.color}</span>`; else row.insertCell(7).innerText='—'; row.insertCell(8).innerText=t.sizeSpec||'—'; row.insertCell(9).innerText=t.category; let scrapDisplay = t.scrapValue ? t.scrapValue.toFixed(2) : '—'; row.insertCell(10).innerHTML = t.scrapValue ? `<span class="badge-scrap"><i class="fas fa-dollar-sign"></i> ${scrapDisplay}</span>` : '—'; let photoCell=row.insertCell(11); if(t.action==='IN' && t.photoUrl) photoCell.innerHTML=`<img class="photo-thumb" src="${t.photoUrl}" onclick="showModal('${t.photoUrl}')" onerror="this.style.display='none'">`; else photoCell.innerHTML='—'; }); }
+    
     function getColorStyle(c){let map={red:'#e74c3c',blue:'#3498db',green:'#2ecc71',yellow:'#f1c40f',black:'#2c3e50',white:'#ecf0f1',orange:'#e67e22',purple:'#9b59b6'}; let l=c.toLowerCase(); for(let[k,v] of Object.entries(map)) if(l.includes(k)) return v; return '#cccccc';}
     function filterStockTable(){ let s=document.getElementById('stockSearch').value.toLowerCase(), st=document.getElementById('stockStatusFilter').value; let filtered=categoryStock.filter(cat=>{if(s && !cat.category.toLowerCase().includes(s)) return false; if(st==='low' && cat.balance>=5) return false; if(st==='normal' && cat.balance<5) return false; return true;}); renderStockTable(filtered); }
     function filterTransactionTable(){ let act=document.getElementById('actionFilter').value, srch=document.getElementById('searchInput').value.toLowerCase(), catFil=document.getElementById('categoryFilter').value, year=document.getElementById('yearFilter').value; let filtered=allTransactions.filter(t=>(act==='ALL'||t.action===act) && (catFil==='ALL'||t.category===catFil) && (year==='ALL'||extractYearFromTimestamp(t.timestamp)==year) && (!srch||(t.name+'').toLowerCase().includes(srch)||(t.department+'').toLowerCase().includes(srch)||(t.itemType+'').toLowerCase().includes(srch)||(t.color+'').toLowerCase().includes(srch)||(t.sizeSpec+'').toLowerCase().includes(srch))); filtered.sort((a,b)=>{ let da=parseDateTime(a.timestamp), db=parseDateTime(b.timestamp); if(!da&&!db) return 0; if(!da) return 1; if(!db) return -1; return sortDescending? db-da : da-db; }); renderTransactionTable(filtered); }

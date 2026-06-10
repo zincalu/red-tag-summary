@@ -543,7 +543,7 @@
         <button class="refresh-btn" onclick="loadAllData()"><i class="fas fa-sync-alt"></i> Refresh</button>
     </div>
 
-    <!-- KPI Row -->
+    <!-- KPI Row (Net Balance card removed) -->
     <div class="kpi-grid">
         <div class="kpi-card">
             <div class="kpi-icon"><i class="fa-solid fa-cart-arrow-down"></i></div>
@@ -653,8 +653,7 @@
                 <thead>
                     <tr><th>No.</th><th>Category</th><th>Balance</th><th>Total IN</th><th>Total OUT</th><th>Status</th></tr>
                 </thead>
-                <tbody id="stockTableBody"><tr><td colspan="6">Loading...</td></tr>
-                </tbody>
+                <tbody id="stockTableBody"><tr><td colspan="6">Loading...</td></tr></tbody>
             </table>
         </div>
     </div>
@@ -673,8 +672,7 @@
                 <thead>
                     <tr><th>No.</th><th>Date</th><th>Name</th><th>Dept</th><th>Action</th><th>Item Type</th><th>Qty</th><th>Color</th><th>Size/Spec</th><th>Category</th><th>Scrap Value</th><th>Photo</th></tr>
                 </thead>
-                <tbody id="transactionTableBody"><tr><td colspan="12">Loading...</td></tr>
-                </tbody>
+                <tbody id="transactionTableBody"><tr><td colspan="12">Loading...</td></tr></tbody>
             </table>
         </div>
     </div>
@@ -869,7 +867,7 @@
         let netBalance = totalIn - totalOut;
         document.getElementById('totalInKpi').innerText = totalIn;
         document.getElementById('totalOutKpi').innerText = totalOut;
-        document.getElementById('netBalanceKpi').innerText = netBalance;
+        // Net Balance KPI element removed, but we keep metric panel value
         document.getElementById('metricTotalIn').innerText = totalIn;
         document.getElementById('metricTotalOut').innerText = totalOut;
         document.getElementById('metricNetBalance').innerText = netBalance;
@@ -944,7 +942,6 @@
             catBody.innerHTML = '<tr><td colspan="3">No IN transactions</td></tr>';
         }
         
-        // Update total row in footer
         let foot = document.getElementById('categorySummaryFoot');
         let totalCell = document.getElementById('totalItemsInFoot');
         if (totalCell) totalCell.innerText = totalCatIn;

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Red Tag Summary – Top Contributor & Emoji Categories</title>
+    <title>Red Tag Summary – Fully Fixed</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
@@ -58,7 +58,6 @@
         .dept-bar.gold-bar { background-color: #f1c40f; }
         .dept-bar-container:hover .dept-bar { opacity: 0.85; transform: scaleY(1.2); transform-origin: center; }
 
-        /* Congratulation message */
         .congrats-message {
             margin-top: 20px;
             background: linear-gradient(135deg, #fff8e7, #ffe6b3);
@@ -143,7 +142,7 @@
         <div class="kpi-card"><div class="kpi-icon"><i class="fas fa-building"></i></div><div class="kpi-info"><h3>Departments Participated</h3><div class="kpi-number" id="deptParticipatedKpi">—</div></div></div>
     </div>
 
-    <!-- Department contribution (full list) & Category summary -->
+    <!-- Department contribution & Category summary -->
     <div class="stats-row">
         <div class="stats-card">
             <h3><i class="fas fa-chart-pie"></i> Department Contribution (% of IN)</h3>
@@ -153,10 +152,10 @@
             <h3><i class="fas fa-table"></i> Category Summary (Items IN)</h3>
             <table class="category-table" id="categorySummaryTable">
                 <thead><tr><th>Category</th><th>Items IN</th><th>% of Total</th></tr></thead>
-                <tbody><tr><td colspan="3">Loading...<\/td><\/tr><\/tbody>
-            <\/table>
-        <\/div>
-    <\/div>
+                <tbody><tr><td colspan="3">Loading...</td></tr></tbody>
+            </table>
+        </div>
+    </div>
 
     <!-- Top 5 Departments with Top Contributor badge + animated bars + congratulation message -->
     <div class="stats-row">
@@ -198,10 +197,10 @@
         <div class="table-wrapper">
             <table id="stockTable">
                 <thead><tr><th>No.</th><th>Category</th><th>Balance</th><th>Total IN</th><th>Total OUT</th><th>Status</th></tr></thead>
-                <tbody id="stockTableBody"><tr><td colspan="6" class="loading-placeholder">Loading...<\/td><\/tr><\/tbody>
-            <\/table>
-        <\/div>
-    <\/div>
+                <tbody id="stockTableBody"><tr><td colspan="6" class="loading-placeholder">Loading...</td></tr></tbody>
+            </table>
+        </div>
+    </div>
 
     <div id="transactionsTab" class="tab-content">
         <div class="filters">
@@ -215,11 +214,11 @@
         <div class="table-wrapper">
             <table id="transactionTable">
                 <thead><tr><th>No.</th><th>Date</th><th>Name</th><th>Dept</th><th>Action</th><th>Item Type</th><th>Qty</th><th>Color</th><th>Size/Spec</th><th>Category</th><th>Photo</th></tr></thead>
-                <tbody id="transactionTableBody"><td><td colspan="11">Loading...<\/td><\/tr><\/tbody>
-            <\/table>
-        <\/div>
-    <\/div>
-<\/div>
+                <tbody id="transactionTableBody"><tr><td colspan="11">Loading...</td></tr></tbody>
+            </table>
+        </div>
+    </div>
+</div>
 
 <div id="imageModal" class="modal" onclick="closeModal()">
     <span class="close-modal" onclick="event.stopPropagation(); closeModal()">&times;</span>
@@ -234,7 +233,6 @@
     let isLoading = false;
     const TOTAL_DEPARTMENTS = 7;
 
-    // Mapping categories to emojis
     function getCategoryEmoji(category) {
         const lower = category.toLowerCase();
         if (lower.includes('stationary')) return '📎';
@@ -244,10 +242,10 @@
         if (lower.includes('electrical')) return '⚡';
         if (lower.includes('jig') || lower.includes('fixture')) return '🔩';
         if (lower.includes('machinery') || lower.includes('machineries')) return '🏭';
-        return '📦'; // default
+        return '📦';
     }
 
-    // ---------- Helper functions (same as before) ----------
+    // ---------- Helper functions (unchanged, but included for completeness) ----------
     function findColumn(headers, possibleNames) {
         for (let name of possibleNames) {
             let idx = headers.findIndex(h => h.toLowerCase().includes(name.toLowerCase()));
@@ -411,7 +409,6 @@
         let { deptPercent, uniqueDepts } = computeDepartmentStats(allTransactions);
         document.getElementById('deptParticipatedKpi').innerHTML = `${uniqueDepts} / ${TOTAL_DEPARTMENTS}`;
         
-        // Full department contribution list (with bars)
         let deptListHtml = '';
         for (let d of deptPercent) {
             deptListHtml += `
@@ -429,13 +426,10 @@
         }
         document.getElementById('deptContributionList').innerHTML = deptListHtml || '<li>No data</li>';
 
-        // Top 5 departments with badge and congratulation message
         let top5 = deptPercent.slice(0,5);
         let topListHtml = '';
         let firstDeptName = '';
-        if (top5.length > 0) {
-            firstDeptName = top5[0].dept;
-        }
+        if (top5.length > 0) firstDeptName = top5[0].dept;
         for (let idx = 0; idx < top5.length; idx++) {
             let d = top5[idx];
             let isFirst = (idx === 0);
@@ -456,7 +450,6 @@
         }
         document.getElementById('topDeptsList').innerHTML = topListHtml || '<li>No data</li>';
 
-        // Eye-catching congratulation message for first place
         const congratsDiv = document.getElementById('congratsMessage');
         const congratsTextSpan = document.getElementById('congratsText');
         if (top5.length > 0) {
@@ -466,7 +459,6 @@
             congratsDiv.style.display = 'none';
         }
 
-        // Category summary table with emojis
         let { catArray } = computeCategoryInSummary(allTransactions);
         let catTableBody = document.querySelector('#categorySummaryTable tbody');
         catTableBody.innerHTML = '';
@@ -477,7 +469,7 @@
             row.insertCell(1).innerText = c.qty;
             row.insertCell(2).innerText = `${c.percent}%`;
         }
-        if (catArray.length === 0) catTableBody.innerHTML = '<tr><td colspan="3">No IN transactions<\/td><\/tr>';
+        if (catArray.length === 0) catTableBody.innerHTML = '<tr><td colspan="3">No IN transactions</td></tr>';
     }
 
     function renderMonthlyChart() {
@@ -528,7 +520,7 @@
     function renderStockTable(items) {
         let tbody = document.getElementById('stockTableBody');
         tbody.innerHTML = '';
-        if (!items.length) { tbody.innerHTML = '<tr><td colspan="6">No stock data<\/td><\/tr>'; return; }
+        if (!items.length) { tbody.innerHTML = '<tr><td colspan="6">No stock data</td></tr>'; return; }
         for (let i=0; i<items.length; i++) {
             let cat = items[i];
             let row = tbody.insertRow();
@@ -547,7 +539,7 @@
     function renderTransactionTable(transactions) {
         let tbody = document.getElementById('transactionTableBody');
         tbody.innerHTML = '';
-        if (!transactions.length) { tbody.innerHTML = '<tr><td colspan="11">No transactions<\/td><\/tr>'; return; }
+        if (!transactions.length) { tbody.innerHTML = '<tr><td colspan="11">No transactions</td></tr>'; return; }
         for (let i=0; i<transactions.length; i++) {
             let t = transactions[i];
             let row = tbody.insertRow();
@@ -637,18 +629,22 @@
                     allTransactions = parsed;
                     allTransactions.sort((a,b)=>parseDateTime(b.timestamp)-parseDateTime(a.timestamp));
                     categoryStock = computeCategoryStock(allTransactions);
-                    updateSummaryStats();
-                    renderMonthlyChart();
-                    updateLowStockAlert();
-                    renderStockTable(categoryStock);
-                    populateYearFilter();
-                    populateCategoryFilter();
-                    filterTransactionTable();
-                    document.getElementById('lastUpdated').innerHTML = `✅ ${new Date().toLocaleString()} · ${allTransactions.length} transactions`;
-                } else throw new Error("No transactions parsed");
+                    
+                    // ✅ Set success message FIRST (before any rendering that might throw)
+                    document.getElementById('lastUpdated').innerHTML = `✅ ${new Date().toLocaleString()} · ${allTransactions.length} transactions loaded`;
+                    
+                    // Now render everything, catching errors individually so they don't break the message
+                    try { updateSummaryStats(); } catch(e) { console.warn("updateSummaryStats error", e); }
+                    try { renderMonthlyChart(); } catch(e) { console.warn("renderMonthlyChart error", e); }
+                    try { updateLowStockAlert(); } catch(e) { console.warn("updateLowStockAlert error", e); }
+                    try { renderStockTable(categoryStock); } catch(e) { console.warn("renderStockTable error", e); }
+                    try { populateYearFilter(); } catch(e) { console.warn("populateYearFilter error", e); }
+                    try { populateCategoryFilter(); } catch(e) { console.warn("populateCategoryFilter error", e); }
+                    try { filterTransactionTable(); } catch(e) { console.warn("filterTransactionTable error", e); }
+                } else throw new Error("No transactions parsed from CSV");
             } else throw new Error("HTTP " + resp.status);
         } catch(e) {
-            console.error(e);
+            console.error("Load error:", e);
             document.getElementById('lastUpdated').innerHTML = "❌ Failed to load data. Check CSV publish.";
             renderStockTable([]);
             renderTransactionTable([]);

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Red Tag Summary – Fully Fixed</title>
+    <title>Red Tag Summary – Swapped & Metrics</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
@@ -27,6 +27,7 @@
         .stats-card { flex: 1; min-width: 280px; background: white; padding: 20px; border-radius: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
         .stats-card h3 { margin-bottom: 16px; font-size: 1.2rem; color: #1e6f5c; border-left: 4px solid #1e6f5c; padding-left: 12px; }
 
+        /* Department list styles */
         .dept-list, .top-dept-list { list-style: none; }
         .dept-list li, .top-dept-list li {
             display: flex;
@@ -82,6 +83,43 @@
         .category-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
         .category-table th, .category-table td { padding: 8px 6px; text-align: left; border-bottom: 1px solid #ecf0f1; }
         .category-table th { background: #f4f9fc; }
+
+        /* Monthly trend card with two columns */
+        .trend-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            align-items: flex-start;
+        }
+        .trend-chart {
+            flex: 2;
+            min-width: 200px;
+        }
+        .trend-metrics {
+            flex: 1;
+            min-width: 140px;
+            background: #f8fafc;
+            border-radius: 20px;
+            padding: 15px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .metric-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #e2edf2;
+        }
+        .metric-label {
+            font-weight: 600;
+            color: #4a6272;
+        }
+        .metric-value {
+            font-weight: 800;
+            color: #1e6f5c;
+        }
+        .scrap-value {
+            color: #e67e22;
+        }
 
         .alert-panel { background: #fff8e7; border-left: 4px solid #e67e22; padding: 15px 20px; border-radius: 16px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
         .alert-list { background: #fff0e0; border-radius: 12px; padding: 10px 15px; margin-top: 10px; width: 100%; }
@@ -142,22 +180,29 @@
         <div class="kpi-card"><div class="kpi-icon"><i class="fas fa-building"></i></div><div class="kpi-info"><h3>Departments Participated</h3><div class="kpi-number" id="deptParticipatedKpi">—</div></div></div>
     </div>
 
-    <!-- Department contribution & Category summary -->
+    <!-- First row: Department Contribution (left) + Monthly Trend with metrics (right) -->
     <div class="stats-row">
         <div class="stats-card">
             <h3><i class="fas fa-chart-pie"></i> Department Contribution (% of IN)</h3>
             <ul class="dept-list" id="deptContributionList"><li>Loading...</li></ul>
         </div>
         <div class="stats-card">
-            <h3><i class="fas fa-table"></i> Category Summary (Items IN)</h3>
-            <table class="category-table" id="categorySummaryTable">
-                <thead><tr><th>Category</th><th>Items IN</th><th>% of Total</th></tr></thead>
-                <tbody><tr><td colspan="3">Loading...</td></tr></tbody>
-            </table>
+            <h3><i class="fas fa-chart-line"></i> Monthly IN/OUT Trend</h3>
+            <div class="trend-container">
+                <div class="trend-chart">
+                    <canvas id="monthlyChart" height="200"></canvas>
+                </div>
+                <div class="trend-metrics" id="trendMetrics">
+                    <div class="metric-item"><span class="metric-label">Total IN</span><span class="metric-value" id="metricTotalIn">—</span></div>
+                    <div class="metric-item"><span class="metric-label">Total OUT</span><span class="metric-value" id="metricTotalOut">—</span></div>
+                    <div class="metric-item"><span class="metric-label">Net Balance</span><span class="metric-value" id="metricNetBalance">—</span></div>
+                    <div class="metric-item"><span class="metric-label">Scrap Rate (OUT/IN)</span><span class="metric-value scrap-value" id="metricScrapRate">—</span></div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- Top 5 Departments with Top Contributor badge + animated bars + congratulation message -->
+    <!-- Second row: Top 5 Departments (left) + Category Summary (right) -->
     <div class="stats-row">
         <div class="stats-card">
             <h3><i class="fas fa-trophy"></i> Top 5 Departments by Items IN</h3>
@@ -167,10 +212,13 @@
             </div>
         </div>
         <div class="stats-card">
-            <h3><i class="fas fa-chart-line"></i> Monthly IN/OUT Trend</h3>
-            <canvas id="monthlyChart" height="200"></canvas>
-        </div>
-    </div>
+            <h3><i class="fas fa-table"></i> Category Summary (Items IN)</h3>
+            <table class="category-table" id="categorySummaryTable">
+                <thead><tr><th>Category</th><th>Items IN</th><th>% of Total</th></tr></thead>
+                <tbody><tr><td colspan="3">Loading...<\/td><\/tr><\/tbody>
+            <\/table>
+        <\/div>
+    <\/div>
 
     <!-- Low stock alert -->
     <div class="alert-panel" id="alertPanel" style="display: none;">
@@ -197,10 +245,10 @@
         <div class="table-wrapper">
             <table id="stockTable">
                 <thead><tr><th>No.</th><th>Category</th><th>Balance</th><th>Total IN</th><th>Total OUT</th><th>Status</th></tr></thead>
-                <tbody id="stockTableBody"><tr><td colspan="6" class="loading-placeholder">Loading...</td></tr></tbody>
-            </table>
-        </div>
-    </div>
+                <tbody id="stockTableBody"><tr><td colspan="6" class="loading-placeholder">Loading...<\/td><\/tr><\/tbody>
+            <\/table>
+        <\/div>
+    <\/div>
 
     <div id="transactionsTab" class="tab-content">
         <div class="filters">
@@ -214,11 +262,11 @@
         <div class="table-wrapper">
             <table id="transactionTable">
                 <thead><tr><th>No.</th><th>Date</th><th>Name</th><th>Dept</th><th>Action</th><th>Item Type</th><th>Qty</th><th>Color</th><th>Size/Spec</th><th>Category</th><th>Photo</th></tr></thead>
-                <tbody id="transactionTableBody"><tr><td colspan="11">Loading...</td></tr></tbody>
-            </table>
-        </div>
-    </div>
-</div>
+                <tbody id="transactionTableBody"><tr><td colspan="11">Loading...<\/td><\/tr><\/tbody>
+            <\/table>
+        <\/div>
+    <\/div>
+<\/div>
 
 <div id="imageModal" class="modal" onclick="closeModal()">
     <span class="close-modal" onclick="event.stopPropagation(); closeModal()">&times;</span>
@@ -245,7 +293,7 @@
         return '📦';
     }
 
-    // ---------- Helper functions (unchanged, but included for completeness) ----------
+    // ---------- Helper functions ----------
     function findColumn(headers, possibleNames) {
         for (let name of possibleNames) {
             let idx = headers.findIndex(h => h.toLowerCase().includes(name.toLowerCase()));
@@ -395,6 +443,7 @@
         return { catArray, totalIn };
     }
 
+    // Update all summary stats and also the metrics panel on the right of the chart
     function updateSummaryStats() {
         let totalIn = 0, totalOut = 0;
         for (let t of allTransactions) {
@@ -405,6 +454,13 @@
         document.getElementById('totalInKpi').innerText = totalIn;
         document.getElementById('totalOutKpi').innerText = totalOut;
         document.getElementById('netBalanceKpi').innerText = netBalance;
+
+        // Update metrics inside the trend card
+        document.getElementById('metricTotalIn').innerText = totalIn;
+        document.getElementById('metricTotalOut').innerText = totalOut;
+        document.getElementById('metricNetBalance').innerText = netBalance;
+        let scrapRate = (totalOut / totalIn * 100).toFixed(1);
+        document.getElementById('metricScrapRate').innerText = (totalOut / totalIn).toFixed(2) + ` (${scrapRate}%)`;
 
         let { deptPercent, uniqueDepts } = computeDepartmentStats(allTransactions);
         document.getElementById('deptParticipatedKpi').innerHTML = `${uniqueDepts} / ${TOTAL_DEPARTMENTS}`;
@@ -469,7 +525,7 @@
             row.insertCell(1).innerText = c.qty;
             row.insertCell(2).innerText = `${c.percent}%`;
         }
-        if (catArray.length === 0) catTableBody.innerHTML = '<tr><td colspan="3">No IN transactions</td></tr>';
+        if (catArray.length === 0) catTableBody.innerHTML = '<tr><td colspan="3">No IN transactions<\/td><\/tr>';
     }
 
     function renderMonthlyChart() {
@@ -520,7 +576,7 @@
     function renderStockTable(items) {
         let tbody = document.getElementById('stockTableBody');
         tbody.innerHTML = '';
-        if (!items.length) { tbody.innerHTML = '<tr><td colspan="6">No stock data</td></tr>'; return; }
+        if (!items.length) { tbody.innerHTML = '<tr><td colspan="6">No stock data<\/td><\/tr>'; return; }
         for (let i=0; i<items.length; i++) {
             let cat = items[i];
             let row = tbody.insertRow();
@@ -539,7 +595,7 @@
     function renderTransactionTable(transactions) {
         let tbody = document.getElementById('transactionTableBody');
         tbody.innerHTML = '';
-        if (!transactions.length) { tbody.innerHTML = '<tr><td colspan="11">No transactions</td></tr>'; return; }
+        if (!transactions.length) { tbody.innerHTML = '<tr><td colspan="11">No transactions<\/td><\/tr>'; return; }
         for (let i=0; i<transactions.length; i++) {
             let t = transactions[i];
             let row = tbody.insertRow();
@@ -630,10 +686,8 @@
                     allTransactions.sort((a,b)=>parseDateTime(b.timestamp)-parseDateTime(a.timestamp));
                     categoryStock = computeCategoryStock(allTransactions);
                     
-                    // ✅ Set success message FIRST (before any rendering that might throw)
                     document.getElementById('lastUpdated').innerHTML = `✅ ${new Date().toLocaleString()} · ${allTransactions.length} transactions loaded`;
                     
-                    // Now render everything, catching errors individually so they don't break the message
                     try { updateSummaryStats(); } catch(e) { console.warn("updateSummaryStats error", e); }
                     try { renderMonthlyChart(); } catch(e) { console.warn("renderMonthlyChart error", e); }
                     try { updateLowStockAlert(); } catch(e) { console.warn("updateLowStockAlert error", e); }

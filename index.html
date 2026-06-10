@@ -17,7 +17,6 @@
         .refresh-btn:hover:not(:disabled) { background: #0e5243; }
         .last-updated { color: #4a6272; font-size: 0.8rem; margin-top: 6px; }
 
-        /* KPI grid */
         .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; margin-bottom: 28px; }
         .kpi-card { background: white; padding: 20px; border-radius: 28px; display: flex; align-items: center; gap: 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
         .kpi-icon { width: 58px; height: 58px; background: #e0f2ef; border-radius: 40px; display: flex; align-items: center; justify-content: center; font-size: 1.9rem; color: #1e6f5c; }
@@ -42,7 +41,6 @@
         .alert-list { background: #fff0e0; border-radius: 12px; padding: 10px 15px; margin-top: 10px; width: 100%; }
         .alert-list strong { color: #e67e22; display: block; margin-bottom: 6px; }
 
-        /* Tabs and tables (same as before) */
         .tabs { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #e2edf2; padding-bottom: 10px; flex-wrap: wrap; }
         .tab-btn { background: none; border: none; padding: 10px 24px; font-size: 1rem; font-weight: 600; cursor: pointer; border-radius: 30px; color: #597a8b; transition: 0.2s; }
         .tab-btn.active { background: #1e6f5c; color: white; }
@@ -82,7 +80,7 @@
         <button class="refresh-btn" onclick="loadAllData()"><i class="fas fa-sync-alt"></i> Refresh</button>
     </div>
 
-    <!-- KPI Row (new) -->
+    <!-- KPI Row -->
     <div class="kpi-grid">
         <div class="kpi-card"><div class="kpi-icon"><i class="fas fa-arrow-down"></i></div><div class="kpi-info"><h3>Total Items IN</h3><div class="kpi-number" id="totalInKpi">—</div></div></div>
         <div class="kpi-card"><div class="kpi-icon"><i class="fas fa-arrow-up"></i></div><div class="kpi-info"><h3>Total Items OUT</h3><div class="kpi-number" id="totalOutKpi">—</div></div></div>
@@ -107,7 +105,7 @@
         </div>
     </div>
 
-    <!-- Top 5 departments & Monthly trend (chart already exists) -->
+    <!-- Top 5 departments & Monthly trend -->
     <div class="stats-row">
         <div class="stats-card">
             <h3><i class="fas fa-trophy"></i> Top 5 Departments by Items IN</h3>
@@ -128,7 +126,7 @@
         <div id="alertDetails" class="alert-list"></div>
     </div>
 
-    <!-- Tabs (Stock & Transactions) -->
+    <!-- Tabs -->
     <div class="tabs">
         <button class="tab-btn active" data-tab="stock">📊 Stock by Category</button>
         <button class="tab-btn" data-tab="transactions">📋 Transactions (with Colour & Spec)</button>
@@ -146,7 +144,7 @@
         <div class="table-wrapper">
             <table id="stockTable">
                 <thead><tr><th>No.</th><th>Category</th><th>Balance</th><th>Total IN</th><th>Total OUT</th><th>Status</th></tr></thead>
-                <tbody id="stockTableBody"><tr><td colspan="6" class="loading-placeholder">Loading...<\/td></tr></tbody>
+                <tbody id="stockTableBody"><tr><td colspan="6" class="loading-placeholder">Loading...</td></tr></tbody>
             </table>
         </div>
     </div>
@@ -180,8 +178,9 @@
     let monthlyChart;
     let sortDescending = true;
     let isLoading = false;
+    const TOTAL_DEPARTMENTS = 7;   // <--- CHANGE THIS IF YOUR TOTAL DEPARTMENTS DIFFER
 
-    // ---------- Helper functions (same as before) ----------
+    // Helper functions (same as before)
     function findColumn(headers, possibleNames) {
         for (let name of possibleNames) {
             let idx = headers.findIndex(h => h.toLowerCase().includes(name.toLowerCase()));
@@ -304,9 +303,8 @@
         return Array.from(map.values()).filter(c => c.balance !== 0).sort((a,b)=>b.balance - a.balance);
     }
 
-    // ----- New stats functions -----
     function computeDepartmentStats(transactions) {
-        let deptIn = new Map(); // department -> total IN qty
+        let deptIn = new Map();
         let uniqueDepts = new Set();
         for (let t of transactions) {
             let dept = t.department || "Unknown";
@@ -332,9 +330,8 @@
         return { catArray, totalIn };
     }
 
-    // Update all new UI elements
     function updateSummaryStats() {
-        // 1. Total IN, OUT, Net
+        // Total IN, OUT, Net
         let totalIn = 0, totalOut = 0;
         for (let t of allTransactions) {
             if (t.action === "IN") totalIn += t.qty;
@@ -345,16 +342,17 @@
         document.getElementById('totalOutKpi').innerText = totalOut;
         document.getElementById('netBalanceKpi').innerText = netBalance;
 
-        // 2. Department stats
+        // Department stats
         let { deptPercent, uniqueDepts } = computeDepartmentStats(allTransactions);
-        document.getElementById('deptParticipatedKpi').innerHTML = `${uniqueDepts} / ${uniqueDepts}`; // adjust if you have total depts expected (e.g., 8)
+        // Show participation as "X / TOTAL_DEPARTMENTS"
+        document.getElementById('deptParticipatedKpi').innerHTML = `${uniqueDepts} / ${TOTAL_DEPARTMENTS}`;
         let deptListHtml = '';
         for (let d of deptPercent) {
             deptListHtml += `<li><span>${d.dept}</span><span class="dept-percent">${d.percent}%</span></li>`;
         }
         document.getElementById('deptContributionList').innerHTML = deptListHtml || '<li>No data</li>';
 
-        // 3. Top 5 departments by IN
+        // Top 5 departments
         let top5 = deptPercent.slice(0,5);
         let topList = document.getElementById('topDeptsList');
         topList.innerHTML = '';
@@ -364,7 +362,7 @@
             topList.appendChild(li);
         });
 
-        // 4. Category summary (IN only)
+        // Category summary (IN only)
         let { catArray, totalIn: totalInCat } = computeCategoryInSummary(allTransactions);
         let catTableBody = document.querySelector('#categorySummaryTable tbody');
         catTableBody.innerHTML = '';
@@ -377,7 +375,6 @@
         if (catArray.length === 0) catTableBody.innerHTML = '<tr><td colspan="3">No IN transactions</td></tr>';
     }
 
-    // Update monthly chart (reuse existing)
     function renderMonthlyChart() {
         let monthMap = new Map();
         for (let t of allTransactions) {
@@ -406,7 +403,6 @@
         });
     }
 
-    // Low stock alert (balance < 5)
     function updateLowStockAlert() {
         let lowItems = categoryStock.filter(c => c.balance < 5);
         let alertPanel = document.getElementById('alertPanel');
@@ -424,7 +420,6 @@
         }
     }
 
-    // ---------- Existing render functions ----------
     function renderStockTable(items) {
         let tbody = document.getElementById('stockTableBody');
         tbody.innerHTML = '';
@@ -520,7 +515,6 @@
 
     function toggleSortOrder() { sortDescending = !sortDescending; filterTransactionTable(); }
 
-    // Main load
     async function loadAllData() {
         if (isLoading) return;
         isLoading = true;

@@ -15,6 +15,7 @@
         .header { background: white; padding: 24px 30px; border-radius: 28px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; box-shadow: 0 8px 20px rgba(0,0,0,0.08); }
         .header h1 { color: #1e6f5c; font-size: 2.2rem; font-weight: 800; letter-spacing: -0.5px; display: flex; align-items: center; gap: 12px; }
         .header h1 i { font-size: 2rem; color: #1e6f5c; background: #e0f2ef; padding: 12px; border-radius: 50%; }
+        .header h2 { font-size: 1.2rem; font-weight: 600; color: #4a6272; margin-top: 6px; border-left: 3px solid #f1c40f; padding-left: 14px; letter-spacing: -0.2px; }
         .refresh-btn { background: #1e6f5c; color: white; border: none; padding: 12px 28px; border-radius: 50px; font-weight: 700; font-size: 1rem; cursor: pointer; transition: 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
         .refresh-btn:disabled { background: #95a5a6; cursor: not-allowed; opacity: 0.7; }
         .refresh-btn:hover:not(:disabled) { background: #0e5243; transform: scale(1.02); }
@@ -128,6 +129,7 @@
     <div class="header">
         <div>
             <h1><i class="fas fa-tag"></i> Red Tag · Scrap Revenue</h1>
+            <h2>Sorting Event 2026 | April - June 2026</h2>
             <div class="last-updated" id="lastUpdated">Loading data...</div>
         </div>
         <button class="refresh-btn" onclick="loadAllData()"><i class="fas fa-sync-alt"></i> Refresh Data</button>

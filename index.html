@@ -27,8 +27,17 @@
         .stats-card { flex: 1; min-width: 280px; background: white; padding: 20px; border-radius: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
         .stats-card h3 { margin-bottom: 16px; font-size: 1.2rem; color: #1e6f5c; border-left: 4px solid #1e6f5c; padding-left: 12px; }
 
-        .dept-list { list-style: none; }
-        .dept-list li { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; padding: 10px 0; border-bottom: 1px solid #ecf0f1; gap: 8px; }
+        /* Department list (both full and top5) */
+        .dept-list, .top-dept-list { list-style: none; }
+        .dept-list li, .top-dept-list li {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            padding: 10px 0;
+            border-bottom: 1px solid #ecf0f1;
+            gap: 8px;
+        }
         .dept-name { font-weight: 600; width: 100px; }
         .dept-stats { display: flex; align-items: baseline; gap: 8px; font-size: 0.85rem; min-width: 130px; }
         .dept-qty { color: #1e6f5c; font-weight: 600; }
@@ -39,9 +48,6 @@
         .category-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
         .category-table th, .category-table td { padding: 8px 6px; text-align: left; border-bottom: 1px solid #ecf0f1; }
         .category-table th { background: #f4f9fc; }
-
-        .chart-row { display: flex; flex-wrap: wrap; gap: 24px; margin-bottom: 24px; }
-        .chart-card { flex: 1; min-width: 280px; background: white; padding: 20px; border-radius: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
 
         .alert-panel { background: #fff8e7; border-left: 4px solid #e67e22; padding: 15px 20px; border-radius: 16px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
         .alert-list { background: #fff0e0; border-radius: 12px; padding: 10px 15px; margin-top: 10px; width: 100%; }
@@ -100,7 +106,7 @@
         <div class="kpi-card"><div class="kpi-icon"><i class="fas fa-building"></i></div><div class="kpi-info"><h3>Departments Participated</h3><div class="kpi-number" id="deptParticipatedKpi">—</div></div></div>
     </div>
 
-    <!-- Department contribution & Category summary -->
+    <!-- Department contribution (full list) & Category summary -->
     <div class="stats-row">
         <div class="stats-card">
             <h3><i class="fas fa-chart-pie"></i> Department Contribution (% of IN)</h3>
@@ -117,11 +123,11 @@
         </div>
     </div>
 
-    <!-- Top 5 & Monthly trend -->
+    <!-- Top 5 Departments (now with bars) & Monthly trend -->
     <div class="stats-row">
         <div class="stats-card">
             <h3><i class="fas fa-trophy"></i> Top 5 Departments by Items IN</h3>
-            <ol id="topDeptsList" style="margin-left: 20px;"><li>Loading...</li></ol>
+            <ul class="top-dept-list" id="topDeptsList"><li>Loading...</li></ul>
         </div>
         <div class="stats-card">
             <h3><i class="fas fa-chart-line"></i> Monthly IN/OUT Trend</h3>
@@ -142,7 +148,6 @@
         <button class="tab-btn" data-tab="transactions">📋 Transactions (with Colour & Spec)</button>
     </div>
 
-    <!-- Stock Tab Content -->
     <div id="stockTab" class="tab-content active">
         <div class="filters">
             <input type="text" id="stockSearch" placeholder="🔍 Search category..." onkeyup="filterStockTable()">
@@ -154,15 +159,12 @@
         </div>
         <div class="table-wrapper">
             <table id="stockTable">
-                <thead>
-                    <tr><th>No.</th><th>Category</th><th>Balance</th><th>Total IN</th><th>Total OUT</th><th>Status</th></tr>
-                </thead>
+                <thead><tr><th>No.</th><th>Category</th><th>Balance</th><th>Total IN</th><th>Total OUT</th><th>Status</th></tr></thead>
                 <tbody id="stockTableBody"><tr><td colspan="6" class="loading-placeholder">Loading...</td></tr></tbody>
             </table>
         </div>
     </div>
 
-    <!-- Transactions Tab Content -->
     <div id="transactionsTab" class="tab-content">
         <div class="filters">
             <select id="actionFilter"><option value="ALL">All Actions</option><option value="IN">IN Only</option><option value="OUT">OUT Only</option></select>
@@ -174,9 +176,7 @@
         </div>
         <div class="table-wrapper">
             <table id="transactionTable">
-                <thead>
-                    <tr><th>No.</th><th>Date</th><th>Name</th><th>Dept</th><th>Action</th><th>Item Type</th><th>Qty</th><th>Color</th><th>Size/Spec</th><th>Category</th><th>Photo</th></tr>
-                </thead>
+                <thead><tr><th>No.</th><th>Date</th><th>Name</th><th>Dept</th><th>Action</th><th>Item Type</th><th>Qty</th><th>Color</th><th>Size/Spec</th><th>Category</th><th>Photo</th></tr></thead>
                 <tbody id="transactionTableBody"><tr><td colspan="11">Loading...</td></tr></tbody>
             </table>
         </div>
@@ -196,7 +196,7 @@
     let isLoading = false;
     const TOTAL_DEPARTMENTS = 7;
 
-    // Helper functions (unchanged, but included for completeness)
+    // ---------- Helper functions ----------
     function findColumn(headers, possibleNames) {
         for (let name of possibleNames) {
             let idx = headers.findIndex(h => h.toLowerCase().includes(name.toLowerCase()));
@@ -360,6 +360,7 @@
         let { deptPercent, uniqueDepts } = computeDepartmentStats(allTransactions);
         document.getElementById('deptParticipatedKpi').innerHTML = `${uniqueDepts} / ${TOTAL_DEPARTMENTS}`;
         
+        // Full department contribution list (with bars)
         let deptListHtml = '';
         for (let d of deptPercent) {
             deptListHtml += `
@@ -377,15 +378,26 @@
         }
         document.getElementById('deptContributionList').innerHTML = deptListHtml || '<li>No data</li>';
 
+        // Top 5 departments with same bar style
         let top5 = deptPercent.slice(0,5);
-        let topList = document.getElementById('topDeptsList');
-        topList.innerHTML = '';
-        top5.forEach((d, idx) => {
-            let li = document.createElement('li');
-            li.textContent = `${idx+1}. ${d.dept} (${d.qty} items)`;
-            topList.appendChild(li);
-        });
+        let topListHtml = '';
+        for (let d of top5) {
+            topListHtml += `
+                <li>
+                    <span class="dept-name">${d.dept}</span>
+                    <div class="dept-stats">
+                        <span class="dept-qty">${d.qty} item(s)</span>
+                        <span class="dept-percent">${d.percent}%</span>
+                    </div>
+                    <div class="dept-bar-container">
+                        <div class="dept-bar" style="width: ${d.percent}%; background-color: #e67e22;"></div>
+                    </div>
+                </li>
+            `;
+        }
+        document.getElementById('topDeptsList').innerHTML = topListHtml || '<li>No data</li>';
 
+        // Category summary table
         let { catArray } = computeCategoryInSummary(allTransactions);
         let catTableBody = document.querySelector('#categorySummaryTable tbody');
         catTableBody.innerHTML = '';

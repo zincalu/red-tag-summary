@@ -147,45 +147,56 @@
     function extractYear(ts) { let y = ts?.match(/\d{4}/); return y ? parseInt(y[0]) : null; }
 
     function parseCSVToTransactions(csvText) {
-        const lines = csvText.split(/\r?\n/);
-        if(lines.length < 2) return [];
-        const headers = lines[0].split(',').map(h => h.replace(/^"|"$/g, '').trim());
-        const colAction = findColumn(headers, ["action", "in/out", "please select action"]);
-        const colTimestamp = findColumn(headers, ["timestamp", "date"]);
-        const colName = findColumn(headers, ["name", "nama"]);
-        const colDept = findColumn(headers, ["department", "dept"]);
-        const colCategory = findColumn(headers, ["categories", "category"]);
-        const colTypeIn = findColumn(headers, ["types (in)", "in type"]);
-        const colQtyIn = findColumn(headers, ["qty (in)", "in qty"]);
-        const colTypeOut = findColumn(headers, ["types (out)", "out type"]);
-        const colQtyOut = findColumn(headers, ["qty (out)", "out qty"]);
-        const colScrap = findColumn(headers, ["scrap cost revenue", "scrap"]);
-        if(colAction === -1) return [];
+    const lines = csvText.split(/\r?\n/);
+    if(lines.length < 2) return [];
+    const headers = lines[0].split(',').map(h => h.replace(/^"|"$/g, '').trim());
+    console.log("HEADERS:", headers);
 
-        let transactions = [];
-        for(let i=1; i<lines.length; i++) {
-            if(!lines[i].trim()) continue;
-            let row = lines[i].split(',').map(c => c.replace(/^"|"$/g, '').trim());
-            if(row.length < headers.length) continue;
-            let action = (row[colAction] || "").toUpperCase();
-            if(action !== "IN" && action !== "OUT") continue;
-            let type = "";
-            if(action === "IN" && colTypeIn !== -1) type = row[colTypeIn];
-            else if(action === "OUT" && colTypeOut !== -1) type = row[colTypeOut];
-            let qty = 0;
-            if(action === "IN" && colQtyIn !== -1) qty = parseFloat(row[colQtyIn]) || 1;
-            else if(action === "OUT" && colQtyOut !== -1) qty = parseFloat(row[colQtyOut]) || 1;
-            if(qty === 0) qty = 1;
-            let category = (colCategory !== -1 ? row[colCategory] : "Uncategorized") || "Uncategorized";
-            let scrap = (colScrap !== -1) ? parseScrapValue(row[colScrap]) : 0;
-            if(type) transactions.push({
-                timestamp: colTimestamp !== -1 ? row[colTimestamp] : "", name: colName !== -1 ? row[colName] : "",
-                department: colDept !== -1 ? row[colDept] : "", action, itemType: type, qty, category, scrapValue: scrap,
-                color: "", sizeSpec: "", photoUrl: null
-            });
-        }
-        return transactions;
+    // More flexible column matching
+    const colAction = findColumn(headers, ["please select action", "please select a", "action", "in/out"]);
+    const colTimestamp = findColumn(headers, ["timestamp", "date", "datetime"]);
+    const colName = findColumn(headers, ["name", "nama"]);
+    const colDept = findColumn(headers, ["department", "dept", "dc"]);
+    const colCategory = findColumn(headers, ["categories", "category"]);
+    const colTypeIn = findColumn(headers, ["types (in)", "types(in)", "in type", "item in"]);
+    const colQtyIn = findColumn(headers, ["qty (in)", "qty(in)", "in qty", "quantity in"]);
+    const colTypeOut = findColumn(headers, ["types (out)", "types(out)", "out type", "item out"]);
+    const colQtyOut = findColumn(headers, ["qty (out)", "qty(out)", "out qty", "quantity out"]);
+    const colScrap = findColumn(headers, ["scrap cost revenue", "scrap", "scrap value"]);
+
+    if(colAction === -1) { console.error("Action column missing"); return []; }
+
+    let transactions = [];
+    for(let i=1; i<lines.length; i++) {
+        let line = lines[i].trim();
+        if(!line) continue;
+        let row = parseCSVLine(line);
+        if(row.length < headers.length) continue;
+
+        let action = (row[colAction] || "").toUpperCase();
+        if(action !== "IN" && action !== "OUT") continue;
+
+        let type = "";
+        if(action === "IN" && colTypeIn !== -1) type = row[colTypeIn];
+        else if(action === "OUT" && colTypeOut !== -1) type = row[colTypeOut];
+        if(!type) continue;  // skip if no item type
+
+        let qty = 0;
+        if(action === "IN" && colQtyIn !== -1) qty = parseFloat(row[colQtyIn]) || 1;
+        else if(action === "OUT" && colQtyOut !== -1) qty = parseFloat(row[colQtyOut]) || 1;
+        if(qty === 0) qty = 1;
+
+        let category = (colCategory !== -1 && row[colCategory]) ? row[colCategory] : "Uncategorized";
+        let scrap = (colScrap !== -1) ? parseScrapValue(row[colScrap]) : 0;
+        let timestamp = colTimestamp !== -1 ? row[colTimestamp] : "";
+        let name = colName !== -1 ? row[colName] : "";
+        let dept = colDept !== -1 ? row[colDept] : "";
+
+        transactions.push({ timestamp, name, department: dept, action, itemType: type, qty, category, scrapValue: scrap, color: "", sizeSpec: "", photoUrl: null });
     }
+    console.log(`Parsed ${transactions.length} transactions`);
+    return transactions;
+}
 
     function computeCategoryStock(transactions) {
         let map = new Map();
@@ -378,7 +389,7 @@
                 let csv = await resp.text();
                 let parsed = parseCSVToTransactions(csv);
                 if(parsed.length) allTransactions = parsed;
-                else throw new Error("No data from CSV, using sample");
+                else throw new Error("No transactions parsed. Headers: " + csv.split('\n')[0]);
             } else throw new Error(`HTTP ${resp.status}`);
         } catch(e) {
             console.warn(e);

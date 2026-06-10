@@ -7,29 +7,153 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, system-ui, sans-serif; }
-        body { background: #f0f4f8; padding: 20px; }
-        .dashboard { max-width: 1600px; margin: 0 auto; }
-        .header { background: white; padding: 20px 25px; border-radius: 24px; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
-        .header h1 { color: #1e6f5c; font-size: 1.8rem; }
-        .refresh-btn { background: #1e6f5c; color: white; border: none; padding: 10px 24px; border-radius: 40px; font-weight: 600; cursor: pointer; transition: 0.2s; }
-        .refresh-btn:disabled { background: #95a5a6; cursor: not-allowed; opacity: 0.7; }
-        .refresh-btn:hover:not(:disabled) { background: #0e5243; }
-        .last-updated { color: #4a6272; font-size: 0.8rem; margin-top: 6px; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+        }
 
-        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 20px; margin-bottom: 28px; }
-        .kpi-card { background: white; padding: 18px 16px; border-radius: 28px; display: flex; align-items: center; gap: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
-        .kpi-icon { width: 52px; height: 52px; background: #e0f2ef; border-radius: 40px; display: flex; align-items: center; justify-content: center; font-size: 1.7rem; color: #1e6f5c; }
-        .kpi-info h3 { font-size: 0.75rem; color: #597a8b; margin-bottom: 6px; letter-spacing: 0.3px; }
-        .kpi-number { font-size: 1.7rem; font-weight: 800; color: #1a2c38; line-height: 1.2; }
-        .scrap-kpi .kpi-number { color: #b86f00; }
+        body {
+            background: #f0f4f8;
+            padding: 20px;
+        }
 
-        .stats-row { display: flex; flex-wrap: wrap; gap: 24px; margin-bottom: 24px; }
-        .stats-card { flex: 1; min-width: 280px; background: white; padding: 20px; border-radius: 24px; box-shadow: 0 2px 10px rgba(0,0,0,0.04); }
-        .stats-card h3 { margin-bottom: 18px; font-size: 1.2rem; color: #1e6f5c; border-left: 4px solid #1e6f5c; padding-left: 12px; display: flex; align-items: center; gap: 8px; }
+        .dashboard {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
 
-        .dept-list, .top-dept-list { list-style: none; }
-        .dept-list li, .top-dept-list li {
+        /* Header */
+        .header {
+            background: white;
+            padding: 20px 25px;
+            border-radius: 24px;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+        }
+
+        .header h1 {
+            color: #1e6f5c;
+            font-size: 1.8rem;
+        }
+
+        .refresh-btn {
+            background: #1e6f5c;
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .refresh-btn:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .refresh-btn:hover:not(:disabled) {
+            background: #0e5243;
+        }
+
+        .last-updated {
+            color: #4a6272;
+            font-size: 0.8rem;
+            margin-top: 6px;
+        }
+
+        /* KPI Cards */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 20px;
+            margin-bottom: 28px;
+        }
+
+        .kpi-card {
+            background: white;
+            padding: 18px 16px;
+            border-radius: 28px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .kpi-icon {
+            width: 52px;
+            height: 52px;
+            background: #e0f2ef;
+            border-radius: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.7rem;
+            color: #1e6f5c;
+        }
+
+        .kpi-info h3 {
+            font-size: 0.75rem;
+            color: #597a8b;
+            margin-bottom: 6px;
+            letter-spacing: 0.3px;
+        }
+
+        .kpi-number {
+            font-size: 1.7rem;
+            font-weight: 800;
+            color: #1a2c38;
+            line-height: 1.2;
+        }
+
+        .scrap-kpi .kpi-number {
+            color: #b86f00;
+        }
+
+        /* Stats rows */
+        .stats-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .stats-card {
+            flex: 1;
+            min-width: 280px;
+            background: white;
+            padding: 20px;
+            border-radius: 24px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+        }
+
+        .stats-card h3 {
+            margin-bottom: 18px;
+            font-size: 1.2rem;
+            color: #1e6f5c;
+            border-left: 4px solid #1e6f5c;
+            padding-left: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Department lists */
+        .dept-list,
+        .top-dept-list {
+            list-style: none;
+        }
+
+        .dept-list li,
+        .top-dept-list li {
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -39,110 +163,477 @@
             gap: 8px;
             animation: fadeInUp 0.3s ease backwards;
         }
-        @keyframes fadeInUp { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
-        .dept-name { font-weight: 600; width: 100px; display: flex; align-items: center; gap: 6px; }
-        .dept-bar-container { flex: 1; min-width: 120px; background-color: #ecf0f1; border-radius: 20px; height: 12px; overflow: hidden; }
-        .dept-bar { background-color: #1e6f5c; width: 0%; height: 100%; border-radius: 20px; transition: width 0.5s cubic-bezier(0.2, 0.9, 0.4, 1.1); }
-        .dept-bar.gold-bar { background-color: #f1c40f; }
 
-        .category-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
-        .category-table th, .category-table td { padding: 8px 6px; text-align: left; border-bottom: 1px solid #ecf0f1; }
-        .category-table th { background: #f4f9fc; }
-        .trend-container { display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start; }
-        .trend-chart { flex: 2; min-width: 200px; }
-        .trend-metrics { flex: 1; min-width: 140px; background: #f8fafc; border-radius: 20px; padding: 15px; }
-        .metric-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #e2edf2; }
-        .metric-label { font-weight: 600; color: #4a6272; }
-        .metric-value { font-weight: 800; color: #1e6f5c; }
-        .scrap-metric { color: #e67e22; }
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(6px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
 
-        .alert-panel { background: #fff8e7; border-left: 4px solid #e67e22; padding: 15px 20px; border-radius: 16px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
-        .tabs { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #e2edf2; padding-bottom: 10px; flex-wrap: wrap; }
-        .tab-btn { background: none; border: none; padding: 10px 24px; font-size: 1rem; font-weight: 600; cursor: pointer; border-radius: 30px; color: #597a8b; transition: 0.2s; }
-        .tab-btn.active { background: #1e6f5c; color: white; }
-        /* FIX: hide inactive tabs, show only active */
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
+        .dept-name {
+            font-weight: 600;
+            width: 100px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
 
-        .filters { display: flex; gap: 14px; margin-bottom: 20px; flex-wrap: wrap; align-items: center; }
-        .filters select, .filters input { padding: 10px 20px; border-radius: 40px; border: 1px solid #cfdfe9; background: white; font-size: 0.85rem; }
-        .table-wrapper { overflow-x: auto; border-radius: 20px; max-height: 550px; overflow-y: auto; }
-        table { width: 100%; border-collapse: collapse; font-size: 0.8rem; min-width: 1000px; }
-        th { background: #f4f9fc; padding: 14px 10px; text-align: left; font-weight: 700; color: #1f5063; border-bottom: 1px solid #e2edf2; position: sticky; top: 0; z-index: 10; }
-        td { padding: 10px 10px; border-bottom: 1px solid #ecf3f7; vertical-align: middle; }
-        .stock-badge { display: inline-block; padding: 4px 12px; border-radius: 40px; font-weight: 600; font-size: 0.75rem; }
-        .stock-high { background: #dff0ec; color: #1e6f5c; }
-        .stock-low { background: #ffe6e5; color: #c24438; }
-        .badge-action { display: inline-block; padding: 4px 12px; border-radius: 40px; font-weight: 600; font-size: 0.7rem; }
-        .badge-in { background: #dff0ec; color: #1e6f5c; }
-        .badge-out { background: #ffe6e5; color: #c24438; }
-        .photo-thumb { width: 38px; height: 38px; object-fit: cover; border-radius: 10px; cursor: pointer; }
-        .color-dot { display: inline-block; width: 14px; height: 14px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
-        .color-tag { background: #f0f0f0; padding: 2px 8px; border-radius: 20px; font-size: 0.7rem; display: inline-flex; align-items: center; gap: 4px; }
-        .sort-toggle { display: inline-flex; align-items: center; gap: 6px; background: #e0f2ef; padding: 6px 12px; border-radius: 30px; cursor: pointer; }
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); justify-content: center; align-items: center; z-index: 2000; }
-        .modal.show { display: flex; }
-        .modal img { max-width: 95vw; max-height: 95vh; border-radius: 12px; }
-        .close-modal { position: absolute; top: 25px; right: 35px; font-size: 42px; color: white; cursor: pointer; }
-        .congrats-message { margin-top: 16px; background: linear-gradient(135deg, #fff8e7, #ffe6b3); border-radius: 40px; padding: 12px 16px; text-align: center; font-weight: bold; color: #b86f00; border-left: 6px solid #f1c40f; }
-        .note-right { margin-left: auto; font-size: 0.7rem; color: #e67e22; background: #fff3e0; padding: 5px 12px; border-radius: 30px; }
-        .badge-scrap { background: #fdebd0; color: #d35400; font-size: 0.7rem; border-radius: 20px; padding: 2px 8px; font-weight: 600; }
-        @media (max-width: 700px) { .dept-name { width: auto; } .dept-bar-container { min-width: 80px; } }
+        .dept-bar-container {
+            flex: 1;
+            min-width: 120px;
+            background-color: #ecf0f1;
+            border-radius: 20px;
+            height: 12px;
+            overflow: hidden;
+        }
+
+        .dept-bar {
+            background-color: #1e6f5c;
+            width: 0%;
+            height: 100%;
+            border-radius: 20px;
+            transition: width 0.5s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+        }
+
+        .dept-bar.gold-bar {
+            background-color: #f1c40f;
+        }
+
+        /* Category table */
+        .category-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+
+        .category-table th,
+        .category-table td {
+            padding: 8px 6px;
+            text-align: left;
+            border-bottom: 1px solid #ecf0f1;
+        }
+
+        .category-table th {
+            background: #f4f9fc;
+        }
+
+        /* Trend chart + metrics */
+        .trend-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            align-items: flex-start;
+        }
+
+        .trend-chart {
+            flex: 2;
+            min-width: 200px;
+        }
+
+        .trend-metrics {
+            flex: 1;
+            min-width: 140px;
+            background: #f8fafc;
+            border-radius: 20px;
+            padding: 15px;
+        }
+
+        .metric-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #e2edf2;
+        }
+
+        .metric-label {
+            font-weight: 600;
+            color: #4a6272;
+        }
+
+        .metric-value {
+            font-weight: 800;
+            color: #1e6f5c;
+        }
+
+        .scrap-metric {
+            color: #e67e22;
+        }
+
+        /* Alert panel */
+        .alert-panel {
+            background: #fff8e7;
+            border-left: 4px solid #e67e22;
+            padding: 15px 20px;
+            border-radius: 16px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e2edf2;
+            padding-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 10px 24px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 30px;
+            color: #597a8b;
+            transition: 0.2s;
+        }
+
+        .tab-btn.active {
+            background: #1e6f5c;
+            color: white;
+        }
+
+        /* Tab content visibility - FIX: only active tab shows */
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Filters & Tables */
+        .filters {
+            display: flex;
+            gap: 14px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .filters select,
+        .filters input {
+            padding: 10px 20px;
+            border-radius: 40px;
+            border: 1px solid #cfdfe9;
+            background: white;
+            font-size: 0.85rem;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            border-radius: 20px;
+            max-height: 550px;
+            overflow-y: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.8rem;
+            min-width: 1000px;
+        }
+
+        th {
+            background: #f4f9fc;
+            padding: 14px 10px;
+            text-align: left;
+            font-weight: 700;
+            color: #1f5063;
+            border-bottom: 1px solid #e2edf2;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        td {
+            padding: 10px 10px;
+            border-bottom: 1px solid #ecf3f7;
+            vertical-align: middle;
+        }
+
+        .stock-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.75rem;
+        }
+
+        .stock-high {
+            background: #dff0ec;
+            color: #1e6f5c;
+        }
+
+        .stock-low {
+            background: #ffe6e5;
+            color: #c24438;
+        }
+
+        .badge-action {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.7rem;
+        }
+
+        .badge-in {
+            background: #dff0ec;
+            color: #1e6f5c;
+        }
+
+        .badge-out {
+            background: #ffe6e5;
+            color: #c24438;
+        }
+
+        .photo-thumb {
+            width: 38px;
+            height: 38px;
+            object-fit: cover;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        .color-dot {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            margin-right: 6px;
+            vertical-align: middle;
+        }
+
+        .color-tag {
+            background: #f0f0f0;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .sort-toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #e0f2ef;
+            padding: 6px 12px;
+            border-radius: 30px;
+            cursor: pointer;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal img {
+            max-width: 95vw;
+            max-height: 95vh;
+            border-radius: 12px;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 25px;
+            right: 35px;
+            font-size: 42px;
+            color: white;
+            cursor: pointer;
+        }
+
+        .congrats-message {
+            margin-top: 16px;
+            background: linear-gradient(135deg, #fff8e7, #ffe6b3);
+            border-radius: 40px;
+            padding: 12px 16px;
+            text-align: center;
+            font-weight: bold;
+            color: #b86f00;
+            border-left: 6px solid #f1c40f;
+        }
+
+        .note-right {
+            margin-left: auto;
+            font-size: 0.7rem;
+            color: #e67e22;
+            background: #fff3e0;
+            padding: 5px 12px;
+            border-radius: 30px;
+        }
+
+        .badge-scrap {
+            background: #fdebd0;
+            color: #d35400;
+            font-size: 0.7rem;
+            border-radius: 20px;
+            padding: 2px 8px;
+            font-weight: 600;
+        }
+
+        @media (max-width: 700px) {
+            .dept-name {
+                width: auto;
+            }
+
+            .dept-bar-container {
+                min-width: 80px;
+            }
+        }
     </style>
 </head>
 <body>
 <div class="dashboard">
+    <!-- Header -->
     <div class="header">
-        <div><h1><i class="fas fa-tag"></i> Red Tag · Scrap Revenue</h1><div class="last-updated" id="lastUpdated">Loading data...</div></div>
+        <div>
+            <h1><i class="fas fa-tag"></i> Red Tag · Scrap Revenue</h1>
+            <div class="last-updated" id="lastUpdated">Loading data...</div>
+        </div>
         <button class="refresh-btn" onclick="loadAllData()"><i class="fas fa-sync-alt"></i> Refresh</button>
     </div>
 
-    <!-- KPI Row with Scrap Total -->
+    <!-- KPI Row -->
     <div class="kpi-grid">
-        <div class="kpi-card"><div class="kpi-icon"><i class="fas fa-arrow-down"></i></div><div class="kpi-info"><h3>Total Items IN</h3><div class="kpi-number" id="totalInKpi">—</div></div></div>
-        <div class="kpi-card"><div class="kpi-icon"><i class="fas fa-arrow-up"></i></div><div class="kpi-info"><h3>Total Items OUT</h3><div class="kpi-number" id="totalOutKpi">—</div></div></div>
-        <div class="kpi-card"><div class="kpi-icon"><i class="fas fa-balance-scale"></i></div><div class="kpi-info"><h3>Net Balance</h3><div class="kpi-number" id="netBalanceKpi">—</div></div></div>
-        <div class="kpi-card"><div class="kpi-icon"><i class="fas fa-building"></i></div><div class="kpi-info"><h3>Departments</h3><div class="kpi-number" id="deptParticipatedKpi">—</div></div></div>
-        <div class="kpi-card scrap-kpi"><div class="kpi-icon" style="background:#fef0e6;"><i class="fas fa-dollar-sign"></i></div><div class="kpi-info"><h3>💰 Total Scrap (Revenue/Cost)</h3><div class="kpi-number" id="totalScrapKpi">—</div></div></div>
+        <div class="kpi-card">
+            <div class="kpi-icon"><i class="fas fa-arrow-down"></i></div>
+            <div class="kpi-info">
+                <h3>Total Items IN</h3>
+                <div class="kpi-number" id="totalInKpi">—</div>
+            </div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-icon"><i class="fas fa-arrow-up"></i></div>
+            <div class="kpi-info">
+                <h3>Total Items OUT</h3>
+                <div class="kpi-number" id="totalOutKpi">—</div>
+            </div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-icon"><i class="fas fa-balance-scale"></i></div>
+            <div class="kpi-info">
+                <h3>Net Balance</h3>
+                <div class="kpi-number" id="netBalanceKpi">—</div>
+            </div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-icon"><i class="fas fa-building"></i></div>
+            <div class="kpi-info">
+                <h3>Departments</h3>
+                <div class="kpi-number" id="deptParticipatedKpi">—</div>
+            </div>
+        </div>
+        <div class="kpi-card scrap-kpi">
+            <div class="kpi-icon" style="background:#fef0e6;"><i class="fas fa-dollar-sign"></i></div>
+            <div class="kpi-info">
+                <h3>💰 Total Scrap (Revenue/Cost)</h3>
+                <div class="kpi-number" id="totalScrapKpi">—</div>
+            </div>
+        </div>
     </div>
 
-    <!-- Row 1: Department Contribution + Monthly Trend -->
+    <!-- Stats Row 1 -->
     <div class="stats-row">
-        <div class="stats-card"><h3><i class="fas fa-chart-pie"></i> Department Contribution (% of IN)</h3><ul class="dept-list" id="deptContributionList"><li>Loading...</li></ul></div>
-        <div class="stats-card"><h3><i class="fas fa-chart-line"></i> Monthly IN/OUT Trend</h3><div class="trend-container"><div class="trend-chart"><canvas id="monthlyChart" height="200"></canvas></div><div class="trend-metrics" id="trendMetrics"><div class="metric-item"><span class="metric-label">Total IN</span><span class="metric-value" id="metricTotalIn">—</span></div><div class="metric-item"><span class="metric-label">Total OUT</span><span class="metric-value" id="metricTotalOut">—</span></div><div class="metric-item"><span class="metric-label">Net Balance</span><span class="metric-value" id="metricNetBalance">—</span></div><div class="metric-item"><span class="metric-label">Scrap Rate (OUT/IN)</span><span class="metric-value scrap-metric" id="metricScrapRate">—</span></div></div></div></div>
+        <div class="stats-card">
+            <h3><i class="fas fa-chart-pie"></i> Department Contribution (% of IN)</h3>
+            <ul class="dept-list" id="deptContributionList"><li>Loading...</li></ul>
+        </div>
+        <div class="stats-card">
+            <h3><i class="fas fa-chart-line"></i> Monthly IN/OUT Trend</h3>
+            <div class="trend-container">
+                <div class="trend-chart">
+                    <canvas id="monthlyChart" height="200"></canvas>
+                </div>
+                <div class="trend-metrics" id="trendMetrics">
+                    <div class="metric-item"><span class="metric-label">Total IN</span><span class="metric-value" id="metricTotalIn">—</span></div>
+                    <div class="metric-item"><span class="metric-label">Total OUT</span><span class="metric-value" id="metricTotalOut">—</span></div>
+                    <div class="metric-item"><span class="metric-label">Net Balance</span><span class="metric-value" id="metricNetBalance">—</span></div>
+                    <div class="metric-item"><span class="metric-label">Scrap Rate (OUT/IN)</span><span class="metric-value scrap-metric" id="metricScrapRate">—</span></div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- Row 2: Top 5 Departments + Category Summary -->
+    <!-- Stats Row 2 -->
     <div class="stats-row">
-        <div class="stats-card"><h3><i class="fas fa-trophy"></i> Top 5 Departments (IN)</h3><ul class="top-dept-list" id="topDeptsList"><li>Loading...</li></ul><div id="congratsMessage" class="congrats-message" style="display: none;"><i class="fas fa-crown"></i> <span id="congratsText"></span></div></div>
-        <div class="stats-card"><h3><i class="fas fa-table"></i> Category Summary (Items IN)</h3><table class="category-table" id="categorySummaryTable"><thead><tr><th>Category</th><th>Items IN</th><th>% of Total</th></tr></thead><tbody><tr><td colspan="3">Loading...</td></tr></tbody></table></div>
+        <div class="stats-card">
+            <h3><i class="fas fa-trophy"></i> Top 5 Departments (IN)</h3>
+            <ul class="top-dept-list" id="topDeptsList"><li>Loading...</li></ul>
+            <div id="congratsMessage" class="congrats-message" style="display: none;">
+                <i class="fas fa-crown"></i> <span id="congratsText"></span>
+            </div>
+        </div>
+        <div class="stats-card">
+            <h3><i class="fas fa-table"></i> Category Summary (Items IN)</h3>
+            <table class="category-table" id="categorySummaryTable">
+                <thead>
+                    <tr><th>Category</th><th>Items IN</th><th>% of Total</th></tr>
+                </thead>
+                <tbody><tr><td colspan="3">Loading...</td></tr></tbody>
+            </table>
+        </div>
     </div>
 
-    <!-- Low stock alert panel -->
-    <div class="alert-panel" id="alertPanel" style="display: none;"><div><i class="fas fa-bell"></i> <span class="alert-title">⚠️ Low Stock Alert (Balance &lt; 5)</span></div><div class="alert-count" id="alertCount">0</div><div id="alertDetails" class="alert-list"></div></div>
+    <!-- Low Stock Alert -->
+    <div class="alert-panel" id="alertPanel" style="display: none;">
+        <div><i class="fas fa-bell"></i> <span class="alert-title">⚠️ Low Stock Alert (Balance &lt; 5)</span></div>
+        <div class="alert-count" id="alertCount">0</div>
+        <div id="alertDetails" class="alert-list"></div>
+    </div>
 
-    <!-- TABS with fix: only active tab visible -->
+    <!-- Tabs -->
     <div class="tabs">
         <button class="tab-btn active" data-tab="stock">📊 Stock by Category</button>
         <button class="tab-btn" data-tab="transactions">📋 Transactions (w/ Scrap Value)</button>
     </div>
+
+    <!-- Stock Tab -->
     <div id="stockTab" class="tab-content active">
         <div class="filters">
             <input type="text" id="stockSearch" placeholder="🔍 Search category..." onkeyup="filterStockTable()">
             <select id="stockStatusFilter" onchange="filterStockTable()">
                 <option value="ALL">All Status</option>
-                <option value="low">🔴 Low (<5)</option>
+                <option value="low">🔴 Low (&lt;5)</option>
                 <option value="normal">✅ Normal (≥5)</option>
             </select>
         </div>
         <div class="table-wrapper">
             <table id="stockTable">
-                <thead><tr><th>No.</th><th>Category</th><th>Balance</th><th>Total IN</th><th>Total OUT</th><th>Status</th></tr></thead>
+                <thead>
+                    <tr><th>No.</th><th>Category</th><th>Balance</th><th>Total IN</th><th>Total OUT</th><th>Status</th></tr>
+                </thead>
                 <tbody id="stockTableBody"><tr><td colspan="6">Loading...</td></tr></tbody>
             </table>
         </div>
     </div>
 
+    <!-- Transactions Tab -->
     <div id="transactionsTab" class="tab-content">
         <div class="filters">
             <select id="actionFilter"><option value="ALL">All Actions</option><option value="IN">IN Only</option><option value="OUT">OUT Only</option></select>
@@ -154,16 +645,23 @@
         </div>
         <div class="table-wrapper">
             <table id="transactionTable">
-                <thead><tr><th>No.</th><th>Date</th><th>Name</th><th>Dept</th><th>Action</th><th>Item Type</th><th>Qty</th><th>Color</th><th>Size/Spec</th><th>Category</th><th>Scrap Value</th><th>Photo</th></tr></thead>
+                <thead>
+                    <tr><th>No.</th><th>Date</th><th>Name</th><th>Dept</th><th>Action</th><th>Item Type</th><th>Qty</th><th>Color</th><th>Size/Spec</th><th>Category</th><th>Scrap Value</th><th>Photo</th></tr>
+                </thead>
                 <tbody id="transactionTableBody"><tr><td colspan="12">Loading...</td></tr></tbody>
             </table>
         </div>
     </div>
 </div>
 
-<div id="imageModal" class="modal" onclick="closeModal()"><span class="close-modal" onclick="event.stopPropagation(); closeModal()">&times;</span><img id="modalImage" src="" alt="Enlarged view" onclick="event.stopPropagation()"></div>
+<!-- Modal for photo preview -->
+<div id="imageModal" class="modal" onclick="closeModal()">
+    <span class="close-modal" onclick="event.stopPropagation(); closeModal()">&times;</span>
+    <img id="modalImage" src="" alt="Enlarged view" onclick="event.stopPropagation()">
+</div>
 
 <script>
+    // ---------- Global Variables ----------
     let allTransactions = [];
     let categoryStock = [];
     let monthlyChart;
@@ -171,6 +669,7 @@
     let isLoading = false;
     const TOTAL_DEPARTMENTS = 7;
 
+    // ---------- Helper Functions ----------
     function parseScrapValue(value) {
         if (!value || typeof value !== 'string') return 0;
         let cleaned = value.replace(/[$,€£]/g, '').trim();
@@ -189,17 +688,40 @@
     function parseDateTime(timestamp) {
         if (!timestamp) return null;
         const match = timestamp.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})(?:\s+(\d{1,2}):(\d{1,2}):(\d{1,2}))?/);
-        if (match) return new Date(parseInt(match[3]), parseInt(match[2])-1, parseInt(match[1]), match[4]||0, match[5]||0, match[6]||0);
+        if (match) {
+            return new Date(parseInt(match[3]), parseInt(match[2]) - 1, parseInt(match[1]), match[4] || 0, match[5] || 0, match[6] || 0);
+        }
         return new Date(timestamp);
     }
 
-    function extractYearFromTimestamp(ts) { let m = ts?.match(/(\d{4})/); return m ? parseInt(m[1]) : null; }
-    function convertDriveToImage(url) { if(!url || typeof url !== 'string') return null; let m = url.match(/[?&]id=([a-zA-Z0-9_-]+)/) || url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/); return m ? `https://drive.google.com/thumbnail?id=${m[1]}&sz=w800` : null; }
-    function parseCSVLine(line) { let res = [], inQuote = false, cur = ''; for(let ch of line) { if(ch === '"') inQuote = !inQuote; else if(ch === ',' && !inQuote) { res.push(cur.trim()); cur = ''; } else cur += ch; } res.push(cur.trim()); return res; }
+    function extractYearFromTimestamp(ts) {
+        let m = ts?.match(/(\d{4})/);
+        return m ? parseInt(m[1]) : null;
+    }
 
+    function convertDriveToImage(url) {
+        if (!url || typeof url !== 'string') return null;
+        let m = url.match(/[?&]id=([a-zA-Z0-9_-]+)/) || url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+        return m ? `https://drive.google.com/thumbnail?id=${m[1]}&sz=w800` : null;
+    }
+
+    function parseCSVLine(line) {
+        let res = [], inQuote = false, cur = '';
+        for (let ch of line) {
+            if (ch === '"') inQuote = !inQuote;
+            else if (ch === ',' && !inQuote) {
+                res.push(cur.trim());
+                cur = '';
+            } else cur += ch;
+        }
+        res.push(cur.trim());
+        return res;
+    }
+
+    // ---------- CSV Parser ----------
     function parseCSVToTransactions(csvText) {
         const lines = csvText.split(/\r?\n/);
-        if(lines.length < 2) return [];
+        if (lines.length < 2) return [];
         const headers = lines[0].split(',').map(h => h.replace(/^"|"$/g, '').trim());
         const colAction = findColumn(headers, ["Please select action", "action", "in/out"]);
         const colTimestamp = findColumn(headers, ["Timestamp", "date"]);
@@ -221,32 +743,39 @@
         const colDimension = findColumn(headers, ["Dimension", "spec"]);
         const colScrap = findColumn(headers, ["Scrap Cost Revenue", "scrap", "scrap value"]);
 
-        if(colAction === -1) return [];
+        if (colAction === -1) return [];
+
         let transactions = [];
-        for(let i=1; i<lines.length; i++) {
-            if(!lines[i].trim()) continue;
+        for (let i = 1; i < lines.length; i++) {
+            if (!lines[i].trim()) continue;
             let row = parseCSVLine(lines[i]);
-            if(row.length < headers.length) continue;
+            if (row.length < headers.length) continue;
             let action = (row[colAction] || "").toUpperCase();
-            if(action !== "IN" && action !== "OUT") continue;
+            if (action !== "IN" && action !== "OUT") continue;
+
             let type = "";
-            if(action === "IN" && colTypeIn !== -1) type = row[colTypeIn];
-            else if(action === "OUT" && colTypeOut !== -1) type = row[colTypeOut];
-            if(!type && colGenericItem !== -1) type = row[colGenericItem];
+            if (action === "IN" && colTypeIn !== -1) type = row[colTypeIn];
+            else if (action === "OUT" && colTypeOut !== -1) type = row[colTypeOut];
+            if (!type && colGenericItem !== -1) type = row[colGenericItem];
+
             let qty = 0;
-            if(action === "IN" && colQtyIn !== -1) qty = parseFloat(row[colQtyIn]) || 0;
-            else if(action === "OUT" && colQtyOut !== -1) qty = parseFloat(row[colQtyOut]) || 0;
-            if(qty === 0 && colGenericQty !== -1) qty = parseFloat(row[colGenericQty]) || 0;
-            if(qty === 0) qty = 1;
+            if (action === "IN" && colQtyIn !== -1) qty = parseFloat(row[colQtyIn]) || 0;
+            else if (action === "OUT" && colQtyOut !== -1) qty = parseFloat(row[colQtyOut]) || 0;
+            if (qty === 0 && colGenericQty !== -1) qty = parseFloat(row[colGenericQty]) || 0;
+            if (qty === 0) qty = 1;
+
             let color = "";
-            if(action === "IN" && colColorIn !== -1) color = row[colColorIn];
-            else if(action === "OUT" && colColorOut !== -1) color = row[colColorOut];
-            if(!color && colGenericColor !== -1) color = row[colGenericColor];
-            if(color === "-" || color === "N/A") color = "";
+            if (action === "IN" && colColorIn !== -1) color = row[colColorIn];
+            else if (action === "OUT" && colColorOut !== -1) color = row[colColorOut];
+            if (!color && colGenericColor !== -1) color = row[colGenericColor];
+            if (color === "-" || color === "N/A") color = "";
+
             let spec = "";
-            if(action === "IN" && colSpecIn !== -1) spec = row[colSpecIn];
-            else if(action === "OUT" && colSpecOut !== -1) spec = row[colSpecOut];
-            if(!spec && colDimension !== -1) spec = row[colDimension];
+            if (action === "IN" && colSpecIn !== -1) spec = row[colSpecIn];
+            else if (action === "OUT" && colSpecOut !== -1) spec = row[colSpecOut];
+            if (!spec && colDimension !== -1) spec = row[colDimension];
+            if (spec === "-") spec = "";
+
             let timestamp = colTimestamp !== -1 ? row[colTimestamp] : "";
             let name = colName !== -1 ? row[colName] : "";
             let dept = colDept !== -1 ? row[colDept] : "";
@@ -254,42 +783,63 @@
             let photoUrl = convertDriveToImage(colPhoto !== -1 ? row[colPhoto] : "");
             let scrapRaw = (colScrap !== -1 && row[colScrap]) ? row[colScrap] : "";
             let scrapValue = parseScrapValue(scrapRaw);
-            if(type || (colGenericItem !== -1 && row[colGenericItem])) {
-                transactions.push({ timestamp, name, department: dept, action, itemType: type || row[colGenericItem], qty, photoUrl, color, sizeSpec: spec, category, scrapValue });
+
+            if (type || (colGenericItem !== -1 && row[colGenericItem])) {
+                transactions.push({
+                    timestamp, name, department: dept, action, itemType: type || row[colGenericItem],
+                    qty, photoUrl, color, sizeSpec: spec, category, scrapValue
+                });
             }
         }
         return transactions;
     }
 
+    // ---------- Data Computations ----------
     function computeCategoryStock(transactions) {
         let map = new Map();
-        for(let t of transactions) {
+        for (let t of transactions) {
             let cat = t.category;
             let existing = map.get(cat) || { category: cat, totalIn: 0, totalOut: 0, balance: 0 };
-            if(t.action === "IN") { existing.totalIn += t.qty; existing.balance += t.qty; }
-            else { existing.totalOut += t.qty; existing.balance -= t.qty; }
+            if (t.action === "IN") {
+                existing.totalIn += t.qty;
+                existing.balance += t.qty;
+            } else {
+                existing.totalOut += t.qty;
+                existing.balance -= t.qty;
+            }
             map.set(cat, existing);
         }
-        return Array.from(map.values()).filter(c => c.balance !== 0).sort((a,b)=>b.balance - a.balance);
+        return Array.from(map.values()).filter(c => c.balance !== 0).sort((a, b) => b.balance - a.balance);
     }
 
     function computeDepartmentStats(transactions) {
-        let deptIn = new Map(); let uniqueDepts = new Set();
-        for(let t of transactions) { let dept = t.department || "Unknown"; uniqueDepts.add(dept); if(t.action === "IN") deptIn.set(dept, (deptIn.get(dept)||0) + t.qty); }
-        let totalIn = Array.from(deptIn.values()).reduce((a,b)=>a+b,0);
-        let deptPercent = Array.from(deptIn.entries()).map(([dept,qty]) => ({ dept, qty, percent: totalIn ? (qty/totalIn*100).toFixed(1) : 0 })).sort((a,b)=>b.qty - a.qty);
+        let deptIn = new Map();
+        let uniqueDepts = new Set();
+        for (let t of transactions) {
+            let dept = t.department || "Unknown";
+            uniqueDepts.add(dept);
+            if (t.action === "IN") deptIn.set(dept, (deptIn.get(dept) || 0) + t.qty);
+        }
+        let totalIn = Array.from(deptIn.values()).reduce((a, b) => a + b, 0);
+        let deptPercent = Array.from(deptIn.entries()).map(([dept, qty]) => ({
+            dept, qty, percent: totalIn ? (qty / totalIn * 100).toFixed(1) : 0
+        })).sort((a, b) => b.qty - a.qty);
         return { deptPercent, totalIn, uniqueDepts: uniqueDepts.size };
     }
 
     function computeTotalScrap(transactions) {
         let total = 0;
-        for(let t of transactions) if(t.scrapValue) total += t.scrapValue;
+        for (let t of transactions) if (t.scrapValue) total += t.scrapValue;
         return total;
     }
 
+    // ---------- UI Update Functions ----------
     function updateSummaryStats() {
-        let totalIn=0, totalOut=0;
-        for(let t of allTransactions) { if(t.action==="IN") totalIn+=t.qty; else totalOut+=t.qty; }
+        let totalIn = 0, totalOut = 0;
+        for (let t of allTransactions) {
+            if (t.action === "IN") totalIn += t.qty;
+            else totalOut += t.qty;
+        }
         let netBalance = totalIn - totalOut;
         document.getElementById('totalInKpi').innerText = totalIn;
         document.getElementById('totalOutKpi').innerText = totalOut;
@@ -297,83 +847,313 @@
         document.getElementById('metricTotalIn').innerText = totalIn;
         document.getElementById('metricTotalOut').innerText = totalOut;
         document.getElementById('metricNetBalance').innerText = netBalance;
-        let scrapRate = totalOut / (totalIn||1);
-        document.getElementById('metricScrapRate').innerText = scrapRate.toFixed(3) + ` (${(scrapRate*100).toFixed(1)}%)`;
-        
+        let scrapRate = totalOut / (totalIn || 1);
+        document.getElementById('metricScrapRate').innerText = scrapRate.toFixed(3) + ` (${(scrapRate * 100).toFixed(1)}%)`;
+
         let totalScrap = computeTotalScrap(allTransactions);
         document.getElementById('totalScrapKpi').innerHTML = totalScrap.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        
+
         let { deptPercent, uniqueDepts } = computeDepartmentStats(allTransactions);
         document.getElementById('deptParticipatedKpi').innerHTML = `${uniqueDepts} / ${TOTAL_DEPARTMENTS}`;
         let deptListHtml = '';
-        for(let d of deptPercent) { deptListHtml += `<li><span class="dept-name">${d.dept}</span><div class="dept-stats"><span class="dept-qty">${d.qty} item(s)</span><span class="dept-percent">${d.percent}%</span></div><div class="dept-bar-container"><div class="dept-bar" style="width: ${d.percent}%;"></div></div></li>`; }
+        for (let d of deptPercent) {
+            deptListHtml += `<li>
+                <span class="dept-name">${d.dept}</span>
+                <div class="dept-stats">
+                    <span class="dept-qty">${d.qty} item(s)</span>
+                    <span class="dept-percent">${d.percent}%</span>
+                </div>
+                <div class="dept-bar-container"><div class="dept-bar" style="width: ${d.percent}%;"></div></div>
+            </li>`;
+        }
         document.getElementById('deptContributionList').innerHTML = deptListHtml || '<li>No data</li>';
-        let top5 = deptPercent.slice(0,5);
+
+        let top5 = deptPercent.slice(0, 5);
         let topHtml = '';
         let firstDept = top5[0]?.dept || '';
-        for(let idx=0; idx<top5.length; idx++) {
-            let d = top5[idx]; let isFirst = idx===0;
+        for (let idx = 0; idx < top5.length; idx++) {
+            let d = top5[idx];
+            let isFirst = (idx === 0);
             let badge = isFirst ? '🏆 ' : '';
             let barClass = isFirst ? 'dept-bar gold-bar' : 'dept-bar';
-            topHtml += `<li><span class="dept-name">${badge}${d.dept}</span><div class="dept-stats"><span class="dept-qty">${d.qty} item(s)</span><span class="dept-percent">${d.percent}%</span></div><div class="dept-bar-container"><div class="${barClass}" style="width: ${d.percent}%;"></div></div></li>`;
+            topHtml += `<li>
+                <span class="dept-name">${badge}${d.dept}</span>
+                <div class="dept-stats">
+                    <span class="dept-qty">${d.qty} item(s)</span>
+                    <span class="dept-percent">${d.percent}%</span>
+                </div>
+                <div class="dept-bar-container"><div class="${barClass}" style="width: ${d.percent}%;"></div></div>
+            </li>`;
         }
         document.getElementById('topDeptsList').innerHTML = topHtml || '<li>No data</li>';
         let congratsDiv = document.getElementById('congratsMessage');
-        if(firstDept) { document.getElementById('congratsText').innerHTML = `🎉 CONGRATULATIONS to ${firstDept} for being the TOP CONTRIBUTOR! 🎉`; congratsDiv.style.display = 'block'; } else congratsDiv.style.display = 'none';
-        
+        if (firstDept) {
+            document.getElementById('congratsText').innerHTML = `🎉 CONGRATULATIONS to ${firstDept} for being the TOP CONTRIBUTOR! 🎉`;
+            congratsDiv.style.display = 'block';
+        } else {
+            congratsDiv.style.display = 'none';
+        }
+
+        // Category IN summary
         let catMap = new Map();
-        for(let t of allTransactions) if(t.action==="IN") catMap.set(t.category, (catMap.get(t.category)||0)+t.qty);
-        let totalCatIn = Array.from(catMap.values()).reduce((a,b)=>a+b,0);
-        let catArray = Array.from(catMap.entries()).map(([cat,qty])=>({category:cat,qty,percent:((qty/totalCatIn)*100).toFixed(1)})).sort((a,b)=>b.qty-a.qty);
-        let catBody = document.querySelector('#categorySummaryTable tbody'); catBody.innerHTML = '';
-        for(let c of catArray) { let row = catBody.insertRow(); row.insertCell(0).innerHTML = `${getCategoryEmoji(c.category)} ${c.category}`; row.insertCell(1).innerText = c.qty; row.insertCell(2).innerText = `${c.percent}%`; }
-        if(catArray.length===0) catBody.innerHTML = '<tr><td colspan="3">No IN transactions</td></tr>';
+        for (let t of allTransactions) {
+            if (t.action === "IN") catMap.set(t.category, (catMap.get(t.category) || 0) + t.qty);
+        }
+        let totalCatIn = Array.from(catMap.values()).reduce((a, b) => a + b, 0);
+        let catArray = Array.from(catMap.entries()).map(([cat, qty]) => ({
+            category: cat, qty, percent: ((qty / totalCatIn) * 100).toFixed(1)
+        })).sort((a, b) => b.qty - a.qty);
+        let catBody = document.querySelector('#categorySummaryTable tbody');
+        catBody.innerHTML = '';
+        for (let c of catArray) {
+            let row = catBody.insertRow();
+            row.insertCell(0).innerHTML = `${getCategoryEmoji(c.category)} ${c.category}`;
+            row.insertCell(1).innerText = c.qty;
+            row.insertCell(2).innerText = `${c.percent}%`;
+        }
+        if (catArray.length === 0) catBody.innerHTML = '<tr><td colspan="3">No IN transactions</td></tr>';
     }
 
-    function getCategoryEmoji(cat) { let l=cat.toLowerCase(); if(l.includes('furniture')) return '🪑'; if(l.includes('machinery')) return '🏭'; if(l.includes('electrical')) return '⚡'; if(l.includes('mechanical')) return '⚙️'; if(l.includes('production')) return '🔧'; return '📦'; }
-    
-    function renderMonthlyChart() { let monthMap=new Map(); for(let t of allTransactions){ let d=parseDateTime(t.timestamp); if(d&&!isNaN(d)){ let ym=`${d.getFullYear()}-${(d.getMonth()+1).toString().padStart(2,'0')}`; let cur=monthMap.get(ym)||{in:0,out:0}; if(t.action==="IN") cur.in+=t.qty; else cur.out+=t.qty; monthMap.set(ym,cur); } } let months=Array.from(monthMap.keys()).sort(); if(monthlyChart) monthlyChart.destroy(); let ctx=document.getElementById('monthlyChart').getContext('2d'); monthlyChart=new Chart(ctx,{type:'line',data:{labels:months,datasets:[{label:'IN',data:months.map(m=>monthMap.get(m).in),borderColor:'#289672',fill:false,tension:0.3},{label:'OUT',data:months.map(m=>monthMap.get(m).out),borderColor:'#e74c3c',fill:false,tension:0.3}]},options:{responsive:true,maintainAspectRatio:true}}); }
-    
-    function updateLowStockAlert() { let low=categoryStock.filter(c=>c.balance<5); let panel=document.getElementById('alertPanel'); if(low.length){ panel.style.display='flex'; document.getElementById('alertCount').innerText=`${low.length} category(ies)`; let details='<strong>⚠️ Categories with balance <5:</strong>'; low.forEach(c=>{details+=`<div>• ${c.category}: ${c.balance} unit(s)</div>`;}); document.getElementById('alertDetails').innerHTML=details; } else panel.style.display='none'; }
-    
-    function renderStockTable(items){ let tbody=document.getElementById('stockTableBody'); tbody.innerHTML=''; if(!items.length){tbody.innerHTML='<tr><td colspan="6">No stock data</td></tr>';return;} items.forEach((cat,i)=>{ let row=tbody.insertRow(); row.insertCell(0).innerText=i+1; row.insertCell(1).innerHTML=`<strong>${cat.category}</strong>`; let cls=cat.balance<5?'stock-low':'stock-high'; row.insertCell(2).innerHTML=`<span class="stock-badge ${cls}">${cat.balance}</span>`; row.insertCell(3).innerText=cat.totalIn; row.insertCell(4).innerText=cat.totalOut; let status=cat.balance<5?'🔴 LOW':'✅ NORMAL'; row.insertCell(5).innerHTML=`<span style="color:${cat.balance<5?'#e74c3c':'#1e6f5c'};font-weight:600">${status}</span>`; }); }
-    
-    function renderTransactionTable(transactions){ let tbody=document.getElementById('transactionTableBody'); tbody.innerHTML=''; if(!transactions.length){tbody.innerHTML='<tr><td colspan="12">No transactions</td></tr>';return;} transactions.forEach((t,i)=>{ let row=tbody.insertRow(); row.insertCell(0).innerText=i+1; row.insertCell(1).innerText=t.timestamp||'?'; row.insertCell(2).innerText=t.name||'-'; row.insertCell(3).innerText=t.department||'-'; row.insertCell(4).innerHTML=`<span class="badge-action ${t.action==='IN'?'badge-in':'badge-out'}">${t.action}</span>`; row.insertCell(5).innerText=t.itemType; row.insertCell(6).innerText=t.qty; if(t.color) row.insertCell(7).innerHTML=`<span class="color-tag"><span class="color-dot" style="background:${getColorStyle(t.color)}"></span>${t.color}</span>`; else row.insertCell(7).innerText='—'; row.insertCell(8).innerText=t.sizeSpec||'—'; row.insertCell(9).innerText=t.category; let scrapDisplay = t.scrapValue ? t.scrapValue.toFixed(2) : '—'; row.insertCell(10).innerHTML = t.scrapValue ? `<span class="badge-scrap"><i class="fas fa-dollar-sign"></i> ${scrapDisplay}</span>` : '—'; let photoCell=row.insertCell(11); if(t.action==='IN' && t.photoUrl) photoCell.innerHTML=`<img class="photo-thumb" src="${t.photoUrl}" onclick="showModal('${t.photoUrl}')" onerror="this.style.display='none'">`; else photoCell.innerHTML='—'; }); }
-    
-    function getColorStyle(c){let map={red:'#e74c3c',blue:'#3498db',green:'#2ecc71',yellow:'#f1c40f',black:'#2c3e50',white:'#ecf0f1',orange:'#e67e22',purple:'#9b59b6'}; let l=c.toLowerCase(); for(let[k,v] of Object.entries(map)) if(l.includes(k)) return v; return '#cccccc';}
-    function filterStockTable(){ let s=document.getElementById('stockSearch').value.toLowerCase(), st=document.getElementById('stockStatusFilter').value; let filtered=categoryStock.filter(cat=>{if(s && !cat.category.toLowerCase().includes(s)) return false; if(st==='low' && cat.balance>=5) return false; if(st==='normal' && cat.balance<5) return false; return true;}); renderStockTable(filtered); }
-    function filterTransactionTable(){ let act=document.getElementById('actionFilter').value, srch=document.getElementById('searchInput').value.toLowerCase(), catFil=document.getElementById('categoryFilter').value, year=document.getElementById('yearFilter').value; let filtered=allTransactions.filter(t=>(act==='ALL'||t.action===act) && (catFil==='ALL'||t.category===catFil) && (year==='ALL'||extractYearFromTimestamp(t.timestamp)==year) && (!srch||(t.name+'').toLowerCase().includes(srch)||(t.department+'').toLowerCase().includes(srch)||(t.itemType+'').toLowerCase().includes(srch)||(t.color+'').toLowerCase().includes(srch)||(t.sizeSpec+'').toLowerCase().includes(srch))); filtered.sort((a,b)=>{ let da=parseDateTime(a.timestamp), db=parseDateTime(b.timestamp); if(!da&&!db) return 0; if(!da) return 1; if(!db) return -1; return sortDescending? db-da : da-db; }); renderTransactionTable(filtered); }
-    function populateCategoryFilter(){ let cats=[...new Set(allTransactions.map(t=>t.category))].sort(); let sel=document.getElementById('categoryFilter'); sel.innerHTML='<option value="ALL">All Categories</option>'; cats.forEach(c=>sel.innerHTML+=`<option value="${c}">${c}</option>`); }
-    function populateYearFilter(){ let yrs=[...new Set(allTransactions.map(t=>extractYearFromTimestamp(t.timestamp)).filter(y=>y))].sort((a,b)=>b-a); let sel=document.getElementById('yearFilter'); sel.innerHTML='<option value="ALL">All Years</option>'; yrs.forEach(y=>sel.innerHTML+=`<option value="${y}">${y}</option>`); }
-    function toggleSortOrder(){ sortDescending=!sortDescending; filterTransactionTable(); }
-    window.showModal = (url)=>{ document.getElementById('modalImage').src=url; document.getElementById('imageModal').classList.add('show'); };
-    window.closeModal = ()=>{ document.getElementById('imageModal').classList.remove('show'); };
+    function getCategoryEmoji(cat) {
+        let l = cat.toLowerCase();
+        if (l.includes('furniture')) return '🪑';
+        if (l.includes('machinery')) return '🏭';
+        if (l.includes('electrical')) return '⚡';
+        if (l.includes('mechanical')) return '⚙️';
+        if (l.includes('production')) return '🔧';
+        return '📦';
+    }
 
+    function renderMonthlyChart() {
+        let monthMap = new Map();
+        for (let t of allTransactions) {
+            let d = parseDateTime(t.timestamp);
+            if (d && !isNaN(d)) {
+                let ym = `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}`;
+                let cur = monthMap.get(ym) || { in: 0, out: 0 };
+                if (t.action === "IN") cur.in += t.qty;
+                else cur.out += t.qty;
+                monthMap.set(ym, cur);
+            }
+        }
+        let months = Array.from(monthMap.keys()).sort();
+        if (monthlyChart) monthlyChart.destroy();
+        let ctx = document.getElementById('monthlyChart').getContext('2d');
+        monthlyChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: months,
+                datasets: [
+                    { label: 'IN', data: months.map(m => monthMap.get(m).in), borderColor: '#289672', fill: false, tension: 0.3 },
+                    { label: 'OUT', data: months.map(m => monthMap.get(m).out), borderColor: '#e74c3c', fill: false, tension: 0.3 }
+                ]
+            },
+            options: { responsive: true, maintainAspectRatio: true }
+        });
+    }
+
+    function updateLowStockAlert() {
+        let low = categoryStock.filter(c => c.balance < 5);
+        let panel = document.getElementById('alertPanel');
+        if (low.length) {
+            panel.style.display = 'flex';
+            document.getElementById('alertCount').innerText = `${low.length} category(ies)`;
+            let details = '<strong>⚠️ Categories with balance <5:</strong>';
+            low.forEach(c => { details += `<div>• ${c.category}: ${c.balance} unit(s)</div>`; });
+            document.getElementById('alertDetails').innerHTML = details;
+        } else {
+            panel.style.display = 'none';
+        }
+    }
+
+    function renderStockTable(items) {
+        let tbody = document.getElementById('stockTableBody');
+        tbody.innerHTML = '';
+        if (!items.length) {
+            tbody.innerHTML = '<tr><td colspan="6">No stock data</td></tr>';
+            return;
+        }
+        items.forEach((cat, i) => {
+            let row = tbody.insertRow();
+            row.insertCell(0).innerText = i + 1;
+            row.insertCell(1).innerHTML = `<strong>${cat.category}</strong>`;
+            let cls = cat.balance < 5 ? 'stock-low' : 'stock-high';
+            row.insertCell(2).innerHTML = `<span class="stock-badge ${cls}">${cat.balance}</span>`;
+            row.insertCell(3).innerText = cat.totalIn;
+            row.insertCell(4).innerText = cat.totalOut;
+            let status = cat.balance < 5 ? '🔴 LOW' : '✅ NORMAL';
+            let color = cat.balance < 5 ? '#e74c3c' : '#1e6f5c';
+            row.insertCell(5).innerHTML = `<span style="color:${color}; font-weight:600">${status}</span>`;
+        });
+    }
+
+    function renderTransactionTable(transactions) {
+        let tbody = document.getElementById('transactionTableBody');
+        tbody.innerHTML = '';
+        if (!transactions.length) {
+            tbody.innerHTML = '<tr><td colspan="12">No transactions</td></tr>';
+            return;
+        }
+        transactions.forEach((t, i) => {
+            let row = tbody.insertRow();
+            row.insertCell(0).innerText = i + 1;
+            row.insertCell(1).innerText = t.timestamp || '?';
+            row.insertCell(2).innerText = t.name || '-';
+            row.insertCell(3).innerText = t.department || '-';
+            row.insertCell(4).innerHTML = `<span class="badge-action ${t.action === 'IN' ? 'badge-in' : 'badge-out'}">${t.action}</span>`;
+            row.insertCell(5).innerText = t.itemType;
+            row.insertCell(6).innerText = t.qty;
+            if (t.color) {
+                row.insertCell(7).innerHTML = `<span class="color-tag"><span class="color-dot" style="background:${getColorStyle(t.color)}"></span>${t.color}</span>`;
+            } else {
+                row.insertCell(7).innerText = '—';
+            }
+            row.insertCell(8).innerText = t.sizeSpec || '—';
+            row.insertCell(9).innerText = t.category;
+            let scrapDisplay = t.scrapValue ? t.scrapValue.toFixed(2) : '—';
+            row.insertCell(10).innerHTML = t.scrapValue ? `<span class="badge-scrap"><i class="fas fa-dollar-sign"></i> ${scrapDisplay}</span>` : '—';
+            let photoCell = row.insertCell(11);
+            if (t.action === 'IN' && t.photoUrl) {
+                photoCell.innerHTML = `<img class="photo-thumb" src="${t.photoUrl}" onclick="showModal('${t.photoUrl}')" onerror="this.style.display='none'">`;
+            } else {
+                photoCell.innerHTML = '—';
+            }
+        });
+    }
+
+    function getColorStyle(c) {
+        let map = { red: '#e74c3c', blue: '#3498db', green: '#2ecc71', yellow: '#f1c40f', black: '#2c3e50', white: '#ecf0f1', orange: '#e67e22', purple: '#9b59b6' };
+        let l = c.toLowerCase();
+        for (let [k, v] of Object.entries(map)) if (l.includes(k)) return v;
+        return '#cccccc';
+    }
+
+    // ---------- Filter Functions ----------
+    function filterStockTable() {
+        let search = document.getElementById('stockSearch').value.toLowerCase();
+        let status = document.getElementById('stockStatusFilter').value;
+        let filtered = categoryStock.filter(cat => {
+            if (search && !cat.category.toLowerCase().includes(search)) return false;
+            if (status === 'low' && cat.balance >= 5) return false;
+            if (status === 'normal' && cat.balance < 5) return false;
+            return true;
+        });
+        renderStockTable(filtered);
+    }
+
+    function filterTransactionTable() {
+        let action = document.getElementById('actionFilter').value;
+        let search = document.getElementById('searchInput').value.toLowerCase().trim();
+        let category = document.getElementById('categoryFilter').value;
+        let year = document.getElementById('yearFilter').value;
+        let filtered = allTransactions.filter(t => {
+            if (action !== 'ALL' && t.action !== action) return false;
+            if (category !== 'ALL' && t.category !== category) return false;
+            if (year !== 'ALL' && extractYearFromTimestamp(t.timestamp) != year) return false;
+            if (search) {
+                let haystack = (t.name + ' ' + t.department + ' ' + t.itemType + ' ' + t.color + ' ' + t.sizeSpec).toLowerCase();
+                if (!haystack.includes(search)) return false;
+            }
+            return true;
+        });
+        filtered.sort((a, b) => {
+            let da = parseDateTime(a.timestamp), db = parseDateTime(b.timestamp);
+            if (!da && !db) return 0;
+            if (!da) return 1;
+            if (!db) return -1;
+            return sortDescending ? db - da : da - db;
+        });
+        renderTransactionTable(filtered);
+    }
+
+    function populateCategoryFilter() {
+        let cats = [...new Set(allTransactions.map(t => t.category))].sort();
+        let sel = document.getElementById('categoryFilter');
+        sel.innerHTML = '<option value="ALL">All Categories</option>';
+        cats.forEach(c => sel.innerHTML += `<option value="${c}">${c}</option>`);
+    }
+
+    function populateYearFilter() {
+        let yrs = [...new Set(allTransactions.map(t => extractYearFromTimestamp(t.timestamp)).filter(y => y))].sort((a, b) => b - a);
+        let sel = document.getElementById('yearFilter');
+        sel.innerHTML = '<option value="ALL">All Years</option>';
+        yrs.forEach(y => sel.innerHTML += `<option value="${y}">${y}</option>`);
+    }
+
+    function toggleSortOrder() {
+        sortDescending = !sortDescending;
+        filterTransactionTable();
+    }
+
+    // ---------- Modal ----------
+    window.showModal = (url) => {
+        document.getElementById('modalImage').src = url;
+        document.getElementById('imageModal').classList.add('show');
+    };
+    window.closeModal = () => {
+        document.getElementById('imageModal').classList.remove('show');
+    };
+
+    // ---------- Load Data from Google Sheets ----------
     async function loadAllData() {
-        if(isLoading) return; isLoading=true; let btn=document.querySelector('.refresh-btn'); btn.disabled=true; btn.innerHTML='<i class="fas fa-spinner fa-pulse"></i> Loading...';
-        try{
-            let url="https://docs.google.com/spreadsheets/d/1h9BZHvzaOpPgtVWfw81eWFQqG9btCM8Z1fQPx9-jPPA/export?format=csv&gid=878903588";
-            let resp=await fetch(url);
-            if(resp.ok){
-                let csv=await resp.text();
-                let parsed=parseCSVToTransactions(csv);
-                if(parsed.length){
-                    allTransactions=parsed; allTransactions.sort((a,b)=>parseDateTime(b.timestamp)-parseDateTime(a.timestamp));
-                    categoryStock=computeCategoryStock(allTransactions);
-                    document.getElementById('lastUpdated').innerHTML=`✅ ${new Date().toLocaleString()} · ${allTransactions.length} transactions loaded`;
-                    updateSummaryStats(); renderMonthlyChart(); updateLowStockAlert(); renderStockTable(categoryStock); populateYearFilter(); populateCategoryFilter(); filterTransactionTable();
-                } else throw new Error("No transactions");
-            } else throw new Error(`HTTP ${resp.status}`);
-        } catch(e){ console.error(e); document.getElementById('lastUpdated').innerHTML="❌ Failed to load data"; renderStockTable([]); renderTransactionTable([]); }
-        finally { btn.disabled=false; btn.innerHTML='<i class="fas fa-sync-alt"></i> Refresh'; isLoading=false; }
+        if (isLoading) return;
+        isLoading = true;
+        let btn = document.querySelector('.refresh-btn');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Loading...';
+        try {
+            let url = "https://docs.google.com/spreadsheets/d/1h9BZHvzaOpPgtVWfw81eWFQqG9btCM8Z1fQPx9-jPPA/export?format=csv&gid=878903588";
+            let resp = await fetch(url);
+            if (resp.ok) {
+                let csv = await resp.text();
+                let parsed = parseCSVToTransactions(csv);
+                if (parsed.length) {
+                    allTransactions = parsed;
+                    allTransactions.sort((a, b) => parseDateTime(b.timestamp) - parseDateTime(a.timestamp));
+                    categoryStock = computeCategoryStock(allTransactions);
+                    document.getElementById('lastUpdated').innerHTML = `✅ ${new Date().toLocaleString()} · ${allTransactions.length} transactions loaded`;
+                    updateSummaryStats();
+                    renderMonthlyChart();
+                    updateLowStockAlert();
+                    renderStockTable(categoryStock);
+                    populateYearFilter();
+                    populateCategoryFilter();
+                    filterTransactionTable();
+                } else {
+                    throw new Error("No transactions parsed");
+                }
+            } else {
+                throw new Error(`HTTP ${resp.status}`);
+            }
+        } catch (e) {
+            console.error(e);
+            document.getElementById('lastUpdated').innerHTML = "❌ Failed to load data. Check CSV publish.";
+            renderStockTable([]);
+            renderTransactionTable([]);
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-sync-alt"></i> Refresh';
+            isLoading = false;
+        }
     }
 
-    // Tab switching
-    document.querySelectorAll('.tab-btn').forEach(btn=>btn.addEventListener('click',()=>{ let tab=btn.dataset.tab; document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active')); document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active')); document.getElementById(`${tab}Tab`).classList.add('active'); btn.classList.add('active'); if(tab==='transactions') filterTransactionTable(); }));
-    document.getElementById('actionFilter')?.addEventListener('change',filterTransactionTable);
-    document.getElementById('categoryFilter')?.addEventListener('change',filterTransactionTable);
-    document.getElementById('yearFilter')?.addEventListener('change',filterTransactionTable);
-    document.getElementById('searchInput')?.addEventListener('keyup',filterTransactionTable);
+    // ---------- Event Listeners ----------
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            let tab = btn.dataset.tab;
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(`${tab}Tab`).classList.add('active');
+            btn.classList.add('active');
+            if (tab === 'transactions') filterTransactionTable();
+        });
+    });
+    document.getElementById('actionFilter')?.addEventListener('change', filterTransactionTable);
+    document.getElementById('categoryFilter')?.addEventListener('change', filterTransactionTable);
+    document.getElementById('yearFilter')?.addEventListener('change', filterTransactionTable);
+    document.getElementById('searchInput')?.addEventListener('keyup', filterTransactionTable);
+
+    // Initial load
     loadAllData();
 </script>
 </body>

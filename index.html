@@ -133,6 +133,7 @@
             padding: 20px;
             border-radius: 24px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+            overflow-x: auto;  /* ensures card handles overflow */
         }
 
         .stats-card h3 {
@@ -204,11 +205,12 @@
             background-color: #f1c40f;
         }
 
-        /* Category table */
+        /* Category table - responsive overflow */
         .category-table {
             width: 100%;
             border-collapse: collapse;
             font-size: 0.85rem;
+            min-width: 280px;
         }
 
         .category-table th,
@@ -304,7 +306,7 @@
             color: white;
         }
 
-        /* Tab content visibility - FIX: only active tab shows */
+        /* Tab content visibility - only active tab shows */
         .tab-content {
             display: none;
         }
@@ -591,12 +593,15 @@
         </div>
         <div class="stats-card">
             <h3><i class="fas fa-table"></i> Category Summary (Items IN)</h3>
-            <table class="category-table" id="categorySummaryTable">
-                <thead>
-                    <tr><th>Category</th><th>Items IN</th><th>% of Total</th></tr>
-                </thead>
-                <tbody><tr><td colspan="3">Loading...</td></tr></tbody>
-            </table>
+            <!-- Added scroll wrapper for category table -->
+            <div style="overflow-x: auto;">
+                <table class="category-table" id="categorySummaryTable">
+                    <thead>
+                        <tr><th>Category</th><th>Items IN</th><th>% of Total</th></tr>
+                    </thead>
+                    <tbody><tr><td colspan="3">Loading...</td></tr>
+                </table>
+            </div>
         </div>
     </div>
 
@@ -628,7 +633,8 @@
                 <thead>
                     <tr><th>No.</th><th>Category</th><th>Balance</th><th>Total IN</th><th>Total OUT</th><th>Status</th></tr>
                 </thead>
-                <tbody id="stockTableBody"><tr><td colspan="6">Loading...</td></tr></tbody>
+                <tbody id="stockTableBody"><tr><td colspan="6">Loading...</td></tr>
+                </tbody>
             </table>
         </div>
     </div>
@@ -648,7 +654,8 @@
                 <thead>
                     <tr><th>No.</th><th>Date</th><th>Name</th><th>Dept</th><th>Action</th><th>Item Type</th><th>Qty</th><th>Color</th><th>Size/Spec</th><th>Category</th><th>Scrap Value</th><th>Photo</th></tr>
                 </thead>
-                <tbody id="transactionTableBody"><tr><td colspan="12">Loading...</td></tr></tbody>
+                <tbody id="transactionTableBody"><tr><td colspan="12">Loading...</td></tr>
+                </tbody>
             </table>
         </div>
     </div>

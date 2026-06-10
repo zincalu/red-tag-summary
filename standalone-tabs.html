@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Red Tag – Transactions & Stock (Standalone)</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, sans-serif; }
+        body { background: #f0f4f8; padding: 20px; }
+        .dashboard { max-width: 1600px; margin: 0 auto; }
+        .header { background: white; padding: 20px 25px; border-radius: 24px; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; }
+        .header h1 { color: #1e6f5c; font-size: 1.8rem; }
+        .refresh-btn { background: #1e6f5c; color: white; border: none; padding: 10px 24px; border-radius: 40px; font-weight: 600; cursor: pointer; }
+        .refresh-btn:disabled { background: #95a5a6; cursor: not-allowed; }
+        .last-updated { color: #4a6272; font-size: 0.8rem; margin-top: 6px; }
+
+        .tabs { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #e2edf2; padding-bottom: 10px; flex-wrap: wrap; }
+        .tab-btn { background: none; border: none; padding: 10px 24px; font-size: 1rem; font-weight: 600; cursor: pointer; border-radius: 30px; color: #597a8b; }
+        .tab-btn.active { background: #1e6f5c; color: white; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        .filters { display: flex; gap: 14px; margin-bottom: 20px; flex-wrap: wrap; align-items: center; }
+        .filters select, .filters input { padding: 10px 20px; border-radius: 40px; border: 1px solid #cfdfe9; background: white; font-size: 0.85rem; outline: none; }
+        .table-wrapper { overflow-x: auto; border-radius: 20px; max-height: 550px; overflow-y: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+        th { background: #f4f9fc; padding: 14px 12px; text-align: left; font-weight: 700; color: #1f5063; border-bottom: 1px solid #e2edf2; position: sticky; top: 0; z-index: 10; }
+        td { padding: 12px 12px; border-bottom: 1px solid #ecf3f7; vertical-align: middle; }
+        .stock-badge { display: inline-block; padding: 4px 12px; border-radius: 40px; font-weight: 600; font-size: 0.8rem; }
+        .stock-high { background: #dff0ec; color: #1e6f5c; }
+        .stock-low { background: #ffe6e5; color: #c24438; }
+        .badge-action { display: inline-block; padding: 4px 12px; border-radius: 40px; font-weight: 600; font-size: 0.75rem; }
+        .badge-in { background: #dff0ec; color: #1e6f5c; }
+        .badge-out { background: #ffe6e5; color: #c24438; }
+        .photo-thumb { width: 45px; height: 45px; object-fit: cover; border-radius: 10px; cursor: pointer; background: #f5f5f5; border: 1px solid #e0e0e0; }
+        .color-dot { display: inline-block; width: 16px; height: 16px; border-radius: 50%; margin-right: 6px; vertical-align: middle; border: 1px solid #ddd; }
+        .color-tag { background: #f0f0f0; padding: 2px 8px; border-radius: 20px; font-size: 0.7rem; display: inline-flex; align-items: center; gap: 4px; }
+        .sort-toggle { display: inline-flex; align-items: center; gap: 6px; background: #e0f2ef; padding: 6px 12px; border-radius: 30px; cursor: pointer; }
+        .note-right { margin-left: auto; font-size: 0.75rem; color: #e67e22; background: #fff3e0; padding: 6px 12px; border-radius: 30px; }
+        .refresh-note { cursor: pointer; font-weight: 600; text-decoration: underline; }
+        .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); justify-content:center; align-items:center; z-index:2000; cursor:zoom-out; }
+        .modal.show { display: flex; }
+        .modal img { max-width: 95vw; max-height: 95vh; border-radius: 12px; }
+        .close-modal { position: absolute; top: 25px; right: 35px; font-size: 42px; color: white; cursor: pointer; }
+    </style>
+</head>
+<body>
+<div class="dashboard">
+    <div class="header">
+        <div>
+            <h1><i class="fas fa-tag"></i> Red Tag Summary (Standalone)</h1>
+            <div class="last-updated" id="lastUpdated">Loading data...</div>
+        </div>
+        <button class="refresh-btn" onclick="loadAllData()"><i class="fas fa-sync-alt"></i> Refresh</button>
+    </div>
+    <div class="tabs">
+        <button class="tab-btn active" data-tab="stock">📊 Stock by Category</button>
+        <button class="tab-btn" data-tab="transactions">📋 Transactions (with Colour & Spec)</button>
+    </div>
+    <div id="stockTab" class="tab-content active">
+        <div class="filters">
+            <input type="text" id="stockSearch" placeholder="🔍 Search category..." onkeyup="filterStockTable()">
+            <select id="stockStatusFilter" onchange="filterStockTable()">
+                <option value="ALL">All Status</option>
+                <option value="low">🔴 Low (<5)</option>
+                <option value="normal">✅ Normal (≥5)</option>
+            </select>
+        </div>
+        <div class="table-wrapper">
+            <table id="stockTable">
+                <thead><tr><th>No.</th><th>Category</th><th>Balance</th><th>Total IN</th><th>Total OUT</th><th>Status</th></tr></thead>
+                <tbody id="stockTableBody"><tr><td colspan="6">Loading...<\/td><\/tr><\/tbody>
+            <\/table>
+        <\/div>
+    <\/div>
+    <div id="transactionsTab" class="tab-content">
+        <div class="filters">
+            <select id="actionFilter"><option value="ALL">All Actions</option><option value="IN">IN Only</option><option value="OUT">OUT Only</option></select>
+            <input type="text" id="searchInput" placeholder="🔍 Search by name, dept, item, colour, spec..." onkeyup="filterTransactionTable()">
+            <select id="categoryFilter"><option value="ALL">All Categories</option></select>
+            <select id="yearFilter" onchange="filterTransactionTable()"><option value="ALL">All Years</option></select>
+            <div class="sort-toggle" onclick="toggleSortOrder()"><i class="fas fa-sort-amount-down"></i> <span id="sortLabel">Latest First</span></div>
+            <div class="note-right"><i class="fas fa-info-circle"></i> <span class="refresh-note" onclick="loadAllData()">Refresh</span></div>
+        </div>
+        <div class="table-wrapper">
+            <table id="transactionTable">
+                <thead><tr><th>No.</th><th>Date & Time</th><th>Name</th><th>Dept</th><th>Action</th><th>Item Type</th><th>Qty</th><th>Color</th><th>Size / Spec</th><th>Category</th><th>Photo</th></tr></thead>
+                <tbody id="transactionTableBody"><tr><td colspan="11">Loading...<\/td><\/tr><\/tbody>
+            <\/table>
+        <\/div>
+    <\/div>
+<\/div>
+<div id="imageModal" class="modal" onclick="closeModal()">
+    <span class="close-modal" onclick="event.stopPropagation(); closeModal()">&times;</span>
+    <img id="modalImage" src="" alt="Enlarged view" onclick="event.stopPropagation()">
+</div>
+<script>
+    // ==== Full script (identical to the main dashboard's table logic) ====
+    let allTransactions = [];
+    let categoryStock = [];
+    let sortDescending = true;
+    let isLoading = false;
+
+    function findColumn(headers, possibleNames) {
+        for (let name of possibleNames) {
+            let idx = headers.findIndex(h => h.toLowerCase().includes(name.toLowerCase()));
+            if (idx !== -1) return idx;
+        }
+        return -1;
+    }
+
+    function parseDateTime(timestamp) {
+        if (!timestamp) return null;
+        const match = timestamp.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})(?:\s+(\d{1,2}):(\d{1,2}):(\d{1,2}))?/);
+        if (match) {
+            return new Date(parseInt(match[3]), parseInt(match[2])-1, parseInt(match[1]), match[4]||0, match[5]||0, match[6]||0);
+        }
+        return new Date(timestamp);
+    }
+
+    function extractYearFromTimestamp(timestamp) {
+        let m = timestamp?.match(/(\d{4})/);
+        return m ? parseInt(m[1]) : null;
+    }
+
+    function convertDriveToImage(url) {
+        if (!url || typeof url !== 'string') return null;
+        let m = url.match(/[?&]id=([a-zA-Z0-9_-]+)/) || url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+        return m ? `https://drive.google.com/thumbnail?id=${m[1]}&sz=w800` : null;
+    }
+
+    function parseCSVLine(line) {
+        let res = [], inQuote = false, cur = '';
+        for (let ch of line) {
+            if (ch === '"') inQuote = !inQuote;
+            else if (ch === ',' && !inQuote) { res.push(cur.trim()); cur = ''; }
+            else cur += ch;
+        }
+        res.push(cur.trim());
+        return res;
+    }
+
+    function parseCSVToTransactions(csvText) {
+        const lines = csvText.split(/\r?\n/);
+        if (lines.length < 2) return [];
+        const headers = lines[0].split(',').map(h => h.replace(/^"|"$/g, '').trim());
+        function findCol(names) { return findColumn(headers, names); }
+
+        const colAction = findCol(["Please select action", "action", "in/out"]);
+        const colTimestamp = findCol(["Timestamp", "date", "date & time"]);
+        const colName = findCol(["Name", "nama"]);
+        const colDept = findCol(["Department", "dept", "dc"]);
+        const colCategory = findCol(["Categories", "category"]);
+        const colPhoto = findCol(["Photo", "foto", "image"]);
+        const colGenericItem = findCol(["Item", "item type", "types", "item name"]);
+        const colGenericQty = findCol(["Qty", "quantity", "jumlah"]);
+        const colTypeIn = findCol(["Types (IN)", "type in"]);
+        const colQtyIn = findCol(["Qty (IN)", "qty in"]);
+        const colTypeOut = findCol(["Types (OUT)", "type out"]);
+        const colQtyOut = findCol(["Qty (OUT)", "qty out"]);
+        const colColorIn = findCol(["Color (IN)", "color (in)"]);
+        const colColorOut = findCol(["Color (OUT)", "color (out)"]);
+        const colGenericColor = findCol(["Color", "colour"]);
+        const colSpecIn = findCol(["Sizes / Specs (IN)", "sizes / specs (in)"]);
+        const colSpecOut = findCol(["Sizes / Specs (OUT)", "sizes / specs (out)"]);
+        const colDimension = findCol(["Dimension", "spec", "size", "ukuran"]);
+
+        if (colAction === -1) return [];
+
+        let transactions = [];
+        for (let i=1; i<lines.length; i++) {
+            if (!lines[i].trim()) continue;
+            let row = parseCSVLine(lines[i]);
+            if (row.length < headers.length) continue;
+            let action = (row[colAction] || "").toUpperCase();
+            if (action !== "IN" && action !== "OUT") continue;
+
+            let type = "";
+            if (action === "IN" && colTypeIn !== -1) type = row[colTypeIn];
+            else if (action === "OUT" && colTypeOut !== -1) type = row[colTypeOut];
+            if (!type && colGenericItem !== -1) type = row[colGenericItem];
+            if (!type) type = "Unknown Item";
+
+            let qty = 0;
+            if (action === "IN" && colQtyIn !== -1) qty = parseFloat(row[colQtyIn]) || 0;
+            else if (action === "OUT" && colQtyOut !== -1) qty = parseFloat(row[colQtyOut]) || 0;
+            if (qty === 0 && colGenericQty !== -1) qty = parseFloat(row[colGenericQty]) || 0;
+            if (qty === 0) qty = 1;
+
+            let color = "";
+            if (action === "IN" && colColorIn !== -1) color = row[colColorIn];
+            else if (action === "OUT" && colColorOut !== -1) color = row[colColorOut];
+            if (!color && colGenericColor !== -1) color = row[colGenericColor];
+            if (color === "-" || color === "N/A") color = "";
+
+            let spec = "";
+            if (action === "IN" && colSpecIn !== -1) spec = row[colSpecIn];
+            else if (action === "OUT" && colSpecOut !== -1) spec = row[colSpecOut];
+            if (!spec && colDimension !== -1) spec = row[colDimension];
+            if (spec === "-") spec = "";
+
+            let timestamp = colTimestamp !== -1 ? row[colTimestamp] : "";
+            let name = colName !== -1 ? row[colName] : "";
+            let dept = colDept !== -1 ? row[colDept] : "";
+            let category = (colCategory !== -1 ? row[colCategory] : "Uncategorized") || "Uncategorized";
+            let photoUrl = convertDriveToImage(colPhoto !== -1 ? row[colPhoto] : "");
+
+            transactions.push({ timestamp, name, department: dept, action, itemType: type, qty, photoUrl, color, sizeSpec: spec, category });
+        }
+        console.log(`Parsed ${transactions.length} transactions`);
+        return transactions;
+    }
+
+    function computeCategoryStock(transactions) {
+        let map = new Map();
+        for (let t of transactions) {
+            let cat = t.category;
+            let existing = map.get(cat) || { category: cat, totalIn: 0, totalOut: 0, balance: 0 };
+            if (t.action === "IN") { existing.totalIn += t.qty; existing.balance += t.qty; }
+            else { existing.totalOut += t.qty; existing.balance -= t.qty; }
+            map.set(cat, existing);
+        }
+        return Array.from(map.values()).filter(c => c.balance !== 0).sort((a,b)=>b.balance - a.balance);
+    }
+
+    function renderStockTable(items) {
+        let tbody = document.getElementById('stockTableBody');
+        tbody.innerHTML = '';
+        if (!items.length) { tbody.innerHTML = '<tr><td colspan="6">No stock data<\/td><\/tr>'; return; }
+        for (let i=0; i<items.length; i++) {
+            let cat = items[i];
+            let row = tbody.insertRow();
+            row.insertCell(0).innerText = i+1;
+            row.insertCell(1).innerHTML = `<strong>${cat.category}</strong>`;
+            let cls = cat.balance < 5 ? 'stock-low' : 'stock-high';
+            row.insertCell(2).innerHTML = `<span class="stock-badge ${cls}">${cat.balance}</span>`;
+            row.insertCell(3).innerText = cat.totalIn;
+            row.insertCell(4).innerText = cat.totalOut;
+            let status = cat.balance < 5 ? '🔴 LOW' : '✅ NORMAL';
+            let color = cat.balance < 5 ? '#e74c3c' : '#1e6f5c';
+            row.insertCell(5).innerHTML = `<span style="color:${color}; font-weight:600">${status}</span>`;
+        }
+    }
+
+    function renderTransactionTable(transactions) {
+        let tbody = document.getElementById('transactionTableBody');
+        tbody.innerHTML = '';
+        if (!transactions.length) { tbody.innerHTML = '<tr><td colspan="11">No transactions<\/td><\/tr>'; return; }
+        for (let i=0; i<transactions.length; i++) {
+            let t = transactions[i];
+            let row = tbody.insertRow();
+            row.insertCell(0).innerText = i+1;
+            row.insertCell(1).innerText = t.timestamp || 'Unknown';
+            row.insertCell(2).innerText = t.name || '-';
+            row.insertCell(3).innerText = t.department || '-';
+            row.insertCell(4).innerHTML = `<span class="badge-action ${t.action==='IN'?'badge-in':'badge-out'}">${t.action}</span>`;
+            row.insertCell(5).innerText = t.itemType;
+            row.insertCell(6).innerText = t.qty;
+            if (t.color) row.insertCell(7).innerHTML = `<span class="color-tag"><span class="color-dot" style="background:${getColorStyle(t.color)}"></span>${t.color}</span>`;
+            else row.insertCell(7).innerText = '—';
+            row.insertCell(8).innerText = t.sizeSpec || '—';
+            row.insertCell(9).innerText = t.category;
+            let photoCell = row.insertCell(10);
+            if (t.action === 'IN' && t.photoUrl) photoCell.innerHTML = `<img class="photo-thumb" src="${t.photoUrl}" onclick="showModal('${t.photoUrl}')" onerror="this.style.display='none'">`;
+            else photoCell.innerHTML = '—';
+        }
+    }
+
+    function getColorStyle(colorName) {
+        let map = { red:'#e74c3c', blue:'#3498db', green:'#2ecc71', yellow:'#f1c40f', black:'#2c3e50', white:'#ecf0f1', orange:'#e67e22', purple:'#9b59b6' };
+        let lower = colorName.toLowerCase();
+        for (let [k,v] of Object.entries(map)) if (lower.includes(k)) return v;
+        return '#cccccc';
+    }
+
+    function filterStockTable() {
+        let search = document.getElementById('stockSearch').value.toLowerCase();
+        let status = document.getElementById('stockStatusFilter').value;
+        let filtered = categoryStock.filter(cat => {
+            if (search && !cat.category.toLowerCase().includes(search)) return false;
+            if (status === 'low' && cat.balance >= 5) return false;
+            if (status === 'normal' && cat.balance < 5) return false;
+            return true;
+        });
+        renderStockTable(filtered);
+    }
+
+    function filterTransactionTable() {
+        let action = document.getElementById('actionFilter').value;
+        let search = document.getElementById('searchInput').value.toLowerCase().trim();
+        let category = document.getElementById('categoryFilter').value;
+        let year = document.getElementById('yearFilter').value;
+        let filtered = [...allTransactions];
+        if (action !== 'ALL') filtered = filtered.filter(t => t.action === action);
+        if (category !== 'ALL') filtered = filtered.filter(t => t.category === category);
+        if (year !== 'ALL') filtered = filtered.filter(t => extractYearFromTimestamp(t.timestamp) == year);
+        if (search) filtered = filtered.filter(t => (t.name+'').toLowerCase().includes(search) || (t.department+'').toLowerCase().includes(search) || (t.itemType+'').toLowerCase().includes(search) || (t.color+'').toLowerCase().includes(search) || (t.sizeSpec+'').toLowerCase().includes(search));
+        filtered.sort((a,b) => {
+            let da = parseDateTime(a.timestamp), db = parseDateTime(b.timestamp);
+            if (!da && !db) return 0;
+            if (!da) return 1;
+            if (!db) return -1;
+            return sortDescending ? db - da : da - db;
+        });
+        renderTransactionTable(filtered);
+    }
+
+    function populateCategoryFilter() {
+        let cats = [...new Set(allTransactions.map(t => t.category))].sort();
+        let select = document.getElementById('categoryFilter');
+        select.innerHTML = '<option value="ALL">All Categories</option>';
+        cats.forEach(c => select.innerHTML += `<option value="${c}">${c}</option>`);
+    }
+
+    function populateYearFilter() {
+        let years = [...new Set(allTransactions.map(t => extractYearFromTimestamp(t.timestamp)).filter(y=>y))].sort((a,b)=>b-a);
+        let select = document.getElementById('yearFilter');
+        select.innerHTML = '<option value="ALL">All Years</option>';
+        years.forEach(y => select.innerHTML += `<option value="${y}">${y}</option>`);
+        if (!years.length && allTransactions.length) select.innerHTML += `<option value="${new Date().getFullYear()}">${new Date().getFullYear()}</option>`;
+    }
+
+    function toggleSortOrder() { sortDescending = !sortDescending; filterTransactionTable(); }
+
+    async function loadAllData() {
+        if (isLoading) return;
+        isLoading = true;
+        let btn = document.querySelector('.refresh-btn');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Loading...';
+        try {
+            let url = "https://docs.google.com/spreadsheets/d/1h9BZHvzaOpPgtVWfw81eWFQqG9btCM8Z1fQPx9-jPPA/export?format=csv&gid=878903588";
+            let proxyUrl = "https://api.allorigins.win/raw?url=" + encodeURIComponent(url);
+            let resp = await fetch(proxyUrl);
+            if (resp.ok) {
+                let csv = await resp.text();
+                let parsed = parseCSVToTransactions(csv);
+                if (parsed.length) {
+                    allTransactions = parsed;
+                    allTransactions.sort((a,b)=>parseDateTime(b.timestamp)-parseDateTime(a.timestamp));
+                    categoryStock = computeCategoryStock(allTransactions);
+                    document.getElementById('lastUpdated').innerHTML = `✅ ${new Date().toLocaleString()} · ${allTransactions.length} transactions loaded`;
+                    renderStockTable(categoryStock);
+                    populateYearFilter();
+                    populateCategoryFilter();
+                    filterTransactionTable();
+                } else throw new Error("No valid transactions");
+            } else throw new Error("HTTP " + resp.status);
+        } catch(e) {
+            console.error(e);
+            document.getElementById('lastUpdated').innerHTML = "❌ Failed to load data. Check CSV publish.";
+            renderStockTable([]);
+            renderTransactionTable([]);
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-sync-alt"></i> Refresh';
+            isLoading = false;
+        }
+    }
+
+    function switchTab(tabId) {
+        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(`${tabId}Tab`).classList.add('active');
+        let activeBtn = Array.from(document.querySelectorAll('.tab-btn')).find(btn => btn.dataset.tab === tabId);
+        if (activeBtn) activeBtn.classList.add('active');
+        if (tabId === 'transactions') filterTransactionTable();
+    }
+
+    window.showModal = (url) => { document.getElementById('modalImage').src = url; document.getElementById('imageModal').classList.add('show'); };
+    window.closeModal = () => { document.getElementById('imageModal').classList.remove('show'); };
+
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.addEventListener('click', () => switchTab(btn.dataset.tab)));
+    document.getElementById('actionFilter').addEventListener('change', filterTransactionTable);
+    document.getElementById('categoryFilter').addEventListener('change', filterTransactionTable);
+    document.getElementById('yearFilter').addEventListener('change', filterTransactionTable);
+    document.getElementById('searchInput').addEventListener('keyup', filterTransactionTable);
+
+    loadAllData();
+</script>
+</body>
+</html>

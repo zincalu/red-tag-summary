@@ -918,11 +918,14 @@
 
     function getCategoryEmoji(cat) {
         let l = cat.toLowerCase();
+        if (l.includes('stationary')) return '✏️';
+        if (l.includes('jig & fixture')) return '🔩';
         if (l.includes('furniture')) return '🪑';
         if (l.includes('machinery')) return '🏭';
         if (l.includes('electrical')) return '⚡';
         if (l.includes('mechanical')) return '⚙️';
         if (l.includes('production')) return '🔧';
+        if (l.includes('machineries')) return '🛠️';
         return '📦';
     }
 

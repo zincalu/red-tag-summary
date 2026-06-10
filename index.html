@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Red Tag Summary – Full Dashboard</title>
+    <title>Red Tag Summary – Top Contributor & Animations</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
@@ -27,7 +27,6 @@
         .stats-card { flex: 1; min-width: 280px; background: white; padding: 20px; border-radius: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
         .stats-card h3 { margin-bottom: 16px; font-size: 1.2rem; color: #1e6f5c; border-left: 4px solid #1e6f5c; padding-left: 12px; }
 
-        /* Department list (both full and top5) */
         .dept-list, .top-dept-list { list-style: none; }
         .dept-list li, .top-dept-list li {
             display: flex;
@@ -37,13 +36,27 @@
             padding: 10px 0;
             border-bottom: 1px solid #ecf0f1;
             gap: 8px;
+            animation: fadeInUp 0.4s ease backwards;
         }
-        .dept-name { font-weight: 600; width: 100px; }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .dept-name { font-weight: 600; width: 100px; display: flex; align-items: center; gap: 6px; }
+        .top-badge { font-size: 1.2rem; }
         .dept-stats { display: flex; align-items: baseline; gap: 8px; font-size: 0.85rem; min-width: 130px; }
         .dept-qty { color: #1e6f5c; font-weight: 600; }
         .dept-percent { color: #e67e22; font-weight: 600; }
         .dept-bar-container { flex: 1; min-width: 120px; background-color: #ecf0f1; border-radius: 20px; height: 12px; overflow: hidden; }
-        .dept-bar { background-color: #1e6f5c; width: 0%; height: 100%; border-radius: 20px; transition: width 0.3s ease; }
+        .dept-bar { 
+            background-color: #1e6f5c; 
+            width: 0%; 
+            height: 100%; 
+            border-radius: 20px; 
+            transition: width 0.6s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+        }
+        .dept-bar.gold-bar { background-color: #f1c40f; }
+        .dept-bar-container:hover .dept-bar { opacity: 0.85; transform: scaleY(1.2); transform-origin: center; }
 
         .category-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
         .category-table th, .category-table td { padding: 8px 6px; text-align: left; border-bottom: 1px solid #ecf0f1; }
@@ -115,15 +128,13 @@
         <div class="stats-card">
             <h3><i class="fas fa-table"></i> Category Summary (Items IN)</h3>
             <table class="category-table" id="categorySummaryTable">
-                <thead>
-                    <tr><th>Category</th><th>Items IN</th><th>% of Total</th></tr>
-                </thead>
+                <thead><tr><th>Category</th><th>Items IN</th><th>% of Total</th></tr></thead>
                 <tbody><tr><td colspan="3">Loading...</td></tr></tbody>
             </table>
         </div>
     </div>
 
-    <!-- Top 5 Departments (now with bars) & Monthly trend -->
+    <!-- Top 5 Departments with Top Contributor badge + animated bars -->
     <div class="stats-row">
         <div class="stats-card">
             <h3><i class="fas fa-trophy"></i> Top 5 Departments by Items IN</h3>
@@ -196,7 +207,7 @@
     let isLoading = false;
     const TOTAL_DEPARTMENTS = 7;
 
-    // ---------- Helper functions ----------
+    // ---------- Helper functions (same as before) ----------
     function findColumn(headers, possibleNames) {
         for (let name of possibleNames) {
             let idx = headers.findIndex(h => h.toLowerCase().includes(name.toLowerCase()));
@@ -378,19 +389,23 @@
         }
         document.getElementById('deptContributionList').innerHTML = deptListHtml || '<li>No data</li>';
 
-        // Top 5 departments with same bar style
+        // Top 5 departments with Top Contributor badge (🏆) and gold bar for 1st place
         let top5 = deptPercent.slice(0,5);
         let topListHtml = '';
-        for (let d of top5) {
+        for (let idx = 0; idx < top5.length; idx++) {
+            let d = top5[idx];
+            let isFirst = (idx === 0);
+            let badgeHtml = isFirst ? '<span class="top-badge">🏆</span> ' : '';
+            let barClass = isFirst ? 'dept-bar gold-bar' : 'dept-bar';
             topListHtml += `
                 <li>
-                    <span class="dept-name">${d.dept}</span>
+                    <span class="dept-name">${badgeHtml}${d.dept}</span>
                     <div class="dept-stats">
                         <span class="dept-qty">${d.qty} item(s)</span>
                         <span class="dept-percent">${d.percent}%</span>
                     </div>
                     <div class="dept-bar-container">
-                        <div class="dept-bar" style="width: ${d.percent}%; background-color: #e67e22;"></div>
+                        <div class="${barClass}" style="width: ${d.percent}%;"></div>
                     </div>
                 </li>
             `;

@@ -263,34 +263,53 @@
             min-width: 200px;
         }
 
+        /* ===== ENHANCED METRICS PANEL – BIGGER & SHARPER ===== */
         .trend-metrics {
             flex: 1;
-            min-width: 140px;
-            background: #f8fafc;
-            border-radius: 20px;
-            padding: 15px;
+            min-width: 180px;
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border-radius: 28px;
+            padding: 20px 18px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(30, 111, 92, 0.15);
         }
 
         .metric-item {
             display: flex;
             justify-content: space-between;
-            padding: 8px 0;
-            border-bottom: 1px solid #e2edf2;
+            align-items: baseline;
+            padding: 14px 0;
+            border-bottom: 1px solid #e0edf2;
+        }
+
+        .metric-item:last-child {
+            border-bottom: none;
         }
 
         .metric-label {
-            font-weight: 600;
-            color: #4a6272;
+            font-size: 1rem;
+            font-weight: 700;
+            color: #1e3a4d;
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+            font-size: 0.85rem;
         }
 
         .metric-value {
-            font-weight: 800;
+            font-size: 2rem;
+            font-weight: 900;
             color: #1e6f5c;
+            line-height: 1.2;
+            font-family: 'Segoe UI', 'Roboto Mono', monospace;
+            text-shadow: 0 1px 1px rgba(0,0,0,0.02);
+            letter-spacing: -0.5px;
         }
 
         .scrap-metric {
             color: #e67e22;
+            font-size: 2rem;
         }
+        /* ================================================ */
 
         .alert-panel {
             background: #fff8e7;
@@ -531,6 +550,15 @@
                 min-width: auto;
                 gap: 6px;
             }
+            .metric-value, .scrap-metric {
+                font-size: 1.4rem;
+            }
+            .metric-label {
+                font-size: 0.7rem;
+            }
+            .trend-metrics {
+                padding: 12px;
+            }
         }
     </style>
 </head>
@@ -588,11 +616,12 @@
                 <div class="trend-chart">
                     <canvas id="monthlyChart" height="200"></canvas>
                 </div>
+                <!-- ENHANCED METRICS PANEL -->
                 <div class="trend-metrics">
                     <div class="metric-item"><span class="metric-label">Total IN</span><span class="metric-value" id="metricTotalIn">—</span></div>
                     <div class="metric-item"><span class="metric-label">Total OUT</span><span class="metric-value" id="metricTotalOut">—</span></div>
                     <div class="metric-item"><span class="metric-label">Net Balance</span><span class="metric-value" id="metricNetBalance">—</span></div>
-                    <div class="metric-item"><span class="metric-label">Scrap Rate (OUT/IN)</span><span class="metric-value scrap-metric" id="metricScrapRate">—</span></div>
+                    <div class="metric-item"><span class="metric-label">Scrap Rate</span><span class="metric-value scrap-metric" id="metricScrapRate">—</span></div>
                 </div>
             </div>
         </div>
@@ -613,14 +642,14 @@
                     <thead>
                         <tr><th>Category</th><th>Items IN</th><th>% of Total</th></tr>
                     </thead>
-                    <tbody id="categorySummaryBody"><tr><td colspan="3">Loading...</td></tr></tbody>
+                    <tbody id="categorySummaryBody"><tr><td colspan="3">Loading...<\/td><\/tr><\/tbody>
                     <tfoot id="categorySummaryFoot" style="display: none;">
-                        <tr><td><strong>📊 TOTAL</strong></td><td id="totalItemsInFoot">0</td><td>100%</td></tr>
-                    </tfoot>
-                </table>
-            </div>
-        </div>
-    </div>
+                        <tr><td><strong>📊 TOTAL<\/strong><\/td><td id="totalItemsInFoot">0<\/td><td>100%<\/td><\/tr>
+                    <\/tfoot>
+                <\/table>
+            <\/div>
+        <\/div>
+    <\/div>
 
     <div class="alert-panel" id="alertPanel" style="display: none;">
         <div><i class="fas fa-bell"></i> <span class="alert-title">⚠️ Low Stock Alert (Balance &lt; 5)</span></div>
@@ -645,10 +674,10 @@
         <div class="table-wrapper">
             <table id="stockTable">
                 <thead><tr><th>No.</th><th>Category</th><th>Balance</th><th>Total IN</th><th>Total OUT</th><th>Status</th></tr></thead>
-                <tbody id="stockTableBody"><tr><td colspan="6">Loading...</td></tr></tbody>
-            </table>
-        </div>
-    </div>
+                <tbody id="stockTableBody"><tr><td colspan="6">Loading...<\/td><\/tr><\/tbody>
+            <\/table>
+        <\/div>
+    <\/div>
 
     <div id="transactionsTab" class="tab-content">
         <div class="filters">
@@ -661,16 +690,16 @@
         <div class="table-wrapper">
             <table id="transactionTable">
                 <thead><tr><th>No.</th><th>Date</th><th>Name</th><th>Dept</th><th>Action</th><th>Item Type</th><th>Qty</th><th>Color</th><th>Size/Spec</th><th>Category</th><th>Scrap Value</th><th>Photo</th></tr></thead>
-                <tbody id="transactionTableBody"><tr><td colspan="12">Loading...</td></tr></tbody>
-            </table>
-        </div>
-    </div>
-</div>
+                <tbody id="transactionTableBody"><tr><td colspan="12">Loading...<\/td><\/tr><\/tbody>
+            <\/table>
+        <\/div>
+    <\/div>
+<\/div>
 
 <div id="imageModal" class="modal" onclick="closeModal()">
     <span class="close-modal" onclick="event.stopPropagation(); closeModal()">&times;</span>
     <img id="modalImage" src="" alt="Enlarged view" onclick="event.stopPropagation()">
-</div>
+<\/div>
 
 <script>
     let allTransactions = [];
@@ -849,7 +878,7 @@
         document.getElementById('metricTotalOut').innerText = totalOut;
         document.getElementById('metricNetBalance').innerText = netBalance;
         let scrapRate = totalOut / (totalIn || 1);
-        document.getElementById('metricScrapRate').innerText = scrapRate.toFixed(3) + ` (${(scrapRate * 100).toFixed(1)}%)`;
+        document.getElementById('metricScrapRate').innerHTML = scrapRate.toFixed(3) + ` (${(scrapRate * 100).toFixed(1)}%)`;
 
         let totalScrap = computeTotalScrap(allTransactions);
         document.getElementById('totalScrapKpi').innerHTML = totalScrap.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -909,7 +938,7 @@
             row.insertCell(1).innerText = c.qty;
             row.insertCell(2).innerText = `${c.percent}%`;
         }
-        if (catArray.length === 0) catBody.innerHTML = '<tr><td colspan="3">No IN transactions</td></tr>';
+        if (catArray.length === 0) catBody.innerHTML = '<tr><td colspan="3">No IN transactions<\/td><\/tr>';
         let foot = document.getElementById('categorySummaryFoot');
         let totalCell = document.getElementById('totalItemsInFoot');
         if (totalCell) totalCell.innerText = totalCatIn;
@@ -974,7 +1003,7 @@
     function renderStockTable(items) {
         let tbody = document.getElementById('stockTableBody');
         tbody.innerHTML = '';
-        if (!items.length) { tbody.innerHTML = '<tr><td colspan="6">No stock data</td></tr>'; return; }
+        if (!items.length) { tbody.innerHTML = '<tr><td colspan="6">No stock data<\/td><\/tr>'; return; }
         items.forEach((cat,i)=>{
             let row = tbody.insertRow();
             row.insertCell(0).innerText = i+1;
@@ -992,7 +1021,7 @@
     function renderTransactionTable(transactions) {
         let tbody = document.getElementById('transactionTableBody');
         tbody.innerHTML = '';
-        if (!transactions.length) { tbody.innerHTML = '<tr><td colspan="12">No transactions</td></tr>'; return; }
+        if (!transactions.length) { tbody.innerHTML = '<tr><td colspan="12">No transactions<\/td><\/tr>'; return; }
         transactions.forEach((t,i)=>{
             let row = tbody.insertRow();
             row.insertCell(0).innerText = i+1;

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Red Tag Summary – Swapped & Metrics</title>
+    <title>Red Tag Summary – Full Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
@@ -17,17 +17,19 @@
         .refresh-btn:hover:not(:disabled) { background: #0e5243; }
         .last-updated { color: #4a6272; font-size: 0.8rem; margin-top: 6px; }
 
+        /* KPI grid */
         .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; margin-bottom: 28px; }
         .kpi-card { background: white; padding: 20px; border-radius: 28px; display: flex; align-items: center; gap: 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
         .kpi-icon { width: 58px; height: 58px; background: #e0f2ef; border-radius: 40px; display: flex; align-items: center; justify-content: center; font-size: 1.9rem; color: #1e6f5c; }
         .kpi-info h3 { font-size: 0.8rem; color: #597a8b; margin-bottom: 6px; }
         .kpi-number { font-size: 2rem; font-weight: 800; color: #1a2c38; }
 
+        /* Stats rows */
         .stats-row { display: flex; flex-wrap: wrap; gap: 24px; margin-bottom: 24px; }
         .stats-card { flex: 1; min-width: 280px; background: white; padding: 20px; border-radius: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
         .stats-card h3 { margin-bottom: 16px; font-size: 1.2rem; color: #1e6f5c; border-left: 4px solid #1e6f5c; padding-left: 12px; }
 
-        /* Department list styles */
+        /* Department lists with bars */
         .dept-list, .top-dept-list { list-style: none; }
         .dept-list li, .top-dept-list li {
             display: flex;
@@ -180,7 +182,7 @@
         <div class="kpi-card"><div class="kpi-icon"><i class="fas fa-building"></i></div><div class="kpi-info"><h3>Departments Participated</h3><div class="kpi-number" id="deptParticipatedKpi">—</div></div></div>
     </div>
 
-    <!-- First row: Department Contribution (left) + Monthly Trend with metrics (right) -->
+    <!-- First row: Department Contribution + Monthly Trend (with metrics) -->
     <div class="stats-row">
         <div class="stats-card">
             <h3><i class="fas fa-chart-pie"></i> Department Contribution (% of IN)</h3>
@@ -202,7 +204,7 @@
         </div>
     </div>
 
-    <!-- Second row: Top 5 Departments (left) + Category Summary (right) -->
+    <!-- Second row: Top 5 Departments + Category Summary -->
     <div class="stats-row">
         <div class="stats-card">
             <h3><i class="fas fa-trophy"></i> Top 5 Departments by Items IN</h3>
@@ -233,6 +235,7 @@
         <button class="tab-btn" data-tab="transactions">📋 Transactions (with Colour & Spec)</button>
     </div>
 
+    <!-- Stock Tab Content -->
     <div id="stockTab" class="tab-content active">
         <div class="filters">
             <input type="text" id="stockSearch" placeholder="🔍 Search category..." onkeyup="filterStockTable()">
@@ -245,15 +248,16 @@
         <div class="table-wrapper">
             <table id="stockTable">
                 <thead><tr><th>No.</th><th>Category</th><th>Balance</th><th>Total IN</th><th>Total OUT</th><th>Status</th></tr></thead>
-                <tbody id="stockTableBody"><tr><td colspan="6" class="loading-placeholder">Loading...<\/td><\/tr><\/tbody>
+                <tbody id="stockTableBody"><td><td colspan="6" class="loading-placeholder">Loading...<\/td><\/tr><\/tbody>
             <\/table>
         <\/div>
     <\/div>
 
+    <!-- Transactions Tab Content -->
     <div id="transactionsTab" class="tab-content">
         <div class="filters">
             <select id="actionFilter"><option value="ALL">All Actions</option><option value="IN">IN Only</option><option value="OUT">OUT Only</option></select>
-            <input type="text" id="searchInput" placeholder="🔍 Search..." onkeyup="filterTransactionTable()">
+            <input type="text" id="searchInput" placeholder="🔍 Search by name, dept, item, colour, spec..." onkeyup="filterTransactionTable()">
             <select id="categoryFilter"><option value="ALL">All Categories</option></select>
             <select id="yearFilter" onchange="filterTransactionTable()"><option value="ALL">All Years</option></select>
             <div class="sort-toggle" onclick="toggleSortOrder()"><i class="fas fa-sort-amount-down"></i> <span id="sortLabel">Latest First</span></div>
@@ -261,7 +265,7 @@
         </div>
         <div class="table-wrapper">
             <table id="transactionTable">
-                <thead><tr><th>No.</th><th>Date</th><th>Name</th><th>Dept</th><th>Action</th><th>Item Type</th><th>Qty</th><th>Color</th><th>Size/Spec</th><th>Category</th><th>Photo</th></tr></thead>
+                <thead><tr><th>No.</th><th>Date & Time</th><th>Name</th><th>Dept</th><th>Action</th><th>Item Type</th><th>Qty</th><th>Color</th><th>Size / Spec</th><th>Category</th><th>Photo</th></tr></thead>
                 <tbody id="transactionTableBody"><tr><td colspan="11">Loading...<\/td><\/tr><\/tbody>
             <\/table>
         <\/div>
@@ -340,23 +344,23 @@
         function findCol(names) { return findColumn(headers, names); }
 
         const colAction = findCol(["Please select action", "action", "in/out"]);
-        const colTimestamp = findCol(["Timestamp", "date"]);
+        const colTimestamp = findCol(["Timestamp", "date", "date & time"]);
         const colName = findCol(["Name", "nama"]);
         const colDept = findCol(["Department", "dept", "dc"]);
         const colCategory = findCol(["Categories", "category"]);
-        const colPhoto = findCol(["Photo"]);
-        const colGenericItem = findCol(["Item", "item type"]);
-        const colGenericQty = findCol(["Qty", "quantity"]);
-        const colTypeIn = findCol(["Types (IN)"]);
-        const colQtyIn = findCol(["Qty (IN)"]);
-        const colTypeOut = findCol(["Types (OUT)"]);
-        const colQtyOut = findCol(["Qty (OUT)"]);
-        const colColorIn = findCol(["Color (IN)"]);
-        const colColorOut = findCol(["Color (OUT)"]);
-        const colGenericColor = findCol(["Color"]);
-        const colSpecIn = findCol(["Sizes / Specs (IN)"]);
-        const colSpecOut = findCol(["Sizes / Specs (OUT)"]);
-        const colDimension = findCol(["Dimension", "spec"]);
+        const colPhoto = findCol(["Photo", "foto", "image"]);
+        const colGenericItem = findCol(["Item", "item type", "types", "item name"]);
+        const colGenericQty = findCol(["Qty", "quantity", "jumlah"]);
+        const colTypeIn = findCol(["Types (IN)", "type in"]);
+        const colQtyIn = findCol(["Qty (IN)", "qty in"]);
+        const colTypeOut = findCol(["Types (OUT)", "type out"]);
+        const colQtyOut = findCol(["Qty (OUT)", "qty out"]);
+        const colColorIn = findCol(["Color (IN)", "color (in)"]);
+        const colColorOut = findCol(["Color (OUT)", "color (out)"]);
+        const colGenericColor = findCol(["Color", "colour"]);
+        const colSpecIn = findCol(["Sizes / Specs (IN)", "sizes / specs (in)"]);
+        const colSpecOut = findCol(["Sizes / Specs (OUT)", "sizes / specs (out)"]);
+        const colDimension = findCol(["Dimension", "spec", "size", "ukuran"]);
 
         if (colAction === -1) return [];
 
@@ -372,6 +376,7 @@
             if (action === "IN" && colTypeIn !== -1) type = row[colTypeIn];
             else if (action === "OUT" && colTypeOut !== -1) type = row[colTypeOut];
             if (!type && colGenericItem !== -1) type = row[colGenericItem];
+            if (!type) type = "Unknown Item";
 
             let qty = 0;
             if (action === "IN" && colQtyIn !== -1) qty = parseFloat(row[colQtyIn]) || 0;
@@ -397,10 +402,9 @@
             let category = (colCategory !== -1 ? row[colCategory] : "Uncategorized") || "Uncategorized";
             let photoUrl = convertDriveToImage(colPhoto !== -1 ? row[colPhoto] : "");
 
-            if (type || (colGenericItem !== -1 && row[colGenericItem])) {
-                transactions.push({ timestamp, name, department: dept, action, itemType: type || row[colGenericItem], qty, photoUrl, color, sizeSpec: spec, category });
-            }
+            transactions.push({ timestamp, name, department: dept, action, itemType: type, qty, photoUrl, color, sizeSpec: spec, category });
         }
+        console.log(`Parsed ${transactions.length} transactions`);
         return transactions;
     }
 
@@ -443,7 +447,6 @@
         return { catArray, totalIn };
     }
 
-    // Update all summary stats and also the metrics panel on the right of the chart
     function updateSummaryStats() {
         let totalIn = 0, totalOut = 0;
         for (let t of allTransactions) {
@@ -665,6 +668,10 @@
         let select = document.getElementById('yearFilter');
         select.innerHTML = '<option value="ALL">All Years</option>';
         years.forEach(y => select.innerHTML += `<option value="${y}">${y}</option>`);
+        if (years.size === 0 && allTransactions.length > 0) {
+            let currentYear = new Date().getFullYear();
+            select.innerHTML += `<option value="${currentYear}">${currentYear}</option>`;
+        }
     }
 
     function toggleSortOrder() { sortDescending = !sortDescending; filterTransactionTable(); }
@@ -677,7 +684,8 @@
         btn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Loading...';
         try {
             let url = "https://docs.google.com/spreadsheets/d/1h9BZHvzaOpPgtVWfw81eWFQqG9btCM8Z1fQPx9-jPPA/export?format=csv&gid=878903588";
-            let resp = await fetch(url);
+            let proxyUrl = "https://api.allorigins.win/raw?url=" + encodeURIComponent(url);
+            let resp = await fetch(proxyUrl);
             if (resp.ok) {
                 let csv = await resp.text();
                 let parsed = parseCSVToTransactions(csv);
@@ -685,16 +693,14 @@
                     allTransactions = parsed;
                     allTransactions.sort((a,b)=>parseDateTime(b.timestamp)-parseDateTime(a.timestamp));
                     categoryStock = computeCategoryStock(allTransactions);
-                    
                     document.getElementById('lastUpdated').innerHTML = `✅ ${new Date().toLocaleString()} · ${allTransactions.length} transactions loaded`;
-                    
-                    try { updateSummaryStats(); } catch(e) { console.warn("updateSummaryStats error", e); }
-                    try { renderMonthlyChart(); } catch(e) { console.warn("renderMonthlyChart error", e); }
-                    try { updateLowStockAlert(); } catch(e) { console.warn("updateLowStockAlert error", e); }
-                    try { renderStockTable(categoryStock); } catch(e) { console.warn("renderStockTable error", e); }
-                    try { populateYearFilter(); } catch(e) { console.warn("populateYearFilter error", e); }
-                    try { populateCategoryFilter(); } catch(e) { console.warn("populateCategoryFilter error", e); }
-                    try { filterTransactionTable(); } catch(e) { console.warn("filterTransactionTable error", e); }
+                    updateSummaryStats();
+                    renderMonthlyChart();
+                    updateLowStockAlert();
+                    renderStockTable(categoryStock);
+                    populateYearFilter();
+                    populateCategoryFilter();
+                    filterTransactionTable();
                 } else throw new Error("No transactions parsed from CSV");
             } else throw new Error("HTTP " + resp.status);
         } catch(e) {

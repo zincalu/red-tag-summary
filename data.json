@@ -1,0 +1,21 @@
+{
+  "totalIn": 245,
+  "totalOut": 187,
+  "departments": ["Dept A", "Dept B", "Dept C"],
+  "scrapValue": 3245.50,
+  "items": [
+    {
+      "date": "2026-04-01",
+      "name": "John Doe",
+      "dept": "Dept A",
+      "action": "IN",
+      "itemType": "Widget",
+      "qty": 5,
+      "color": "Red",
+      "sizeSpec": "L",
+      "category": "Electronics",
+      "scrapValue": 150,
+      "photo": ""
+    }
+  ]
+}

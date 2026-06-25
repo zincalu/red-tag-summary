@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Red Tag Summary </title>
+    <title>Red Tag Summary</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
@@ -11,7 +11,6 @@
         body { background: #f0f4f8; padding: 20px; }
         .dashboard { max-width: 1600px; margin: 0 auto; }
 
-        /* HEADER – BIGGER & BOLDER */
         .header { background: white; padding: 24px 30px; border-radius: 28px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; box-shadow: 0 8px 20px rgba(0,0,0,0.08); }
         .header h1 { color: #1e6f5c; font-size: 2.2rem; font-weight: 800; letter-spacing: -0.5px; display: flex; align-items: center; gap: 12px; }
         .header h1 i { font-size: 2rem; color: #1e6f5c; background: #e0f2ef; padding: 12px; border-radius: 50%; }
@@ -21,7 +20,6 @@
         .refresh-btn:hover:not(:disabled) { background: #0e5243; transform: scale(1.02); }
         .last-updated { color: #4a6272; font-size: 0.9rem; margin-top: 8px; font-weight: 500; }
 
-        /* KPI CARDS – ENHANCED */
         .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 24px; margin-bottom: 32px; }
         .kpi-card { background: white; padding: 22px 20px; border-radius: 32px; display: flex; align-items: center; gap: 20px; box-shadow: 0 8px 20px rgba(0,0,0,0.06); transition: transform 0.2s, box-shadow 0.2s; }
         .kpi-card:hover { transform: translateY(-4px); box-shadow: 0 12px 28px rgba(0,0,0,0.12); }
@@ -30,16 +28,13 @@
         .kpi-number { font-size: 2.2rem; font-weight: 900; color: #1a2c38; line-height: 1.1; }
         .scrap-kpi .kpi-number { color: #b86f00; }
 
-        /* STATS CARDS */
         .stats-row { display: flex; flex-wrap: wrap; gap: 28px; margin-bottom: 28px; }
         .stats-card { flex: 1; min-width: 300px; background: white; padding: 24px; border-radius: 28px; box-shadow: 0 6px 18px rgba(0,0,0,0.05); overflow-x: auto; transition: all 0.2s; }
         .stats-card h3 { margin-bottom: 20px; font-size: 1.4rem; font-weight: 800; color: #1e6f5c; border-left: 6px solid #1e6f5c; padding-left: 16px; display: flex; align-items: center; gap: 12px; letter-spacing: -0.3px; }
         .stats-card h3 i { font-size: 1.5rem; }
 
-        /* DEPARTMENT INFO */
         .dept-participated-info { font-size: 0.9rem; font-weight: 600; color: #1e6f5c; margin-bottom: 20px; padding: 8px 18px; background: #e8f4f0; border-radius: 40px; display: inline-block; }
 
-        /* LISTS & BARS */
         .dept-list, .top-dept-list { list-style: none; }
         .dept-list li, .top-dept-list li { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; padding: 12px 0; border-bottom: 1px solid #ecf0f1; gap: 16px; animation: fadeInUp 0.3s ease backwards; }
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
@@ -51,14 +46,12 @@
         .dept-qty { color: #1e6f5c; font-weight: 700; }
         .dept-percent { color: #e67e22; font-weight: 800; background: #fff2e0; padding: 4px 12px; border-radius: 30px; }
 
-        /* CATEGORY TABLE */
         .category-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; min-width: 300px; }
         .category-table th, .category-table td { padding: 12px 8px; text-align: left; border-bottom: 1px solid #e2e9ef; }
         .category-table th { background: #f4f9fc; font-weight: 800; font-size: 0.95rem; color: #1f5063; }
         .category-table tfoot tr { background-color: #e0f2ef; font-weight: 800; }
         .category-table tfoot td { border-top: 2px solid #1e6f5c; padding: 12px 8px; font-size: 1rem; }
 
-        /* TREND METRICS – BIGGER & SHARPER */
         .trend-container { display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start; }
         .trend-chart { flex: 2; min-width: 240px; }
         .trend-metrics { flex: 1; min-width: 200px; background: linear-gradient(135deg, #ffffff, #f8fafc); border-radius: 32px; padding: 24px 20px; box-shadow: 0 8px 24px rgba(0,0,0,0.08); border: 1px solid rgba(30,111,92,0.2); }
@@ -68,32 +61,28 @@
         .metric-value { font-size: 2.2rem; font-weight: 900; color: #1e6f5c; line-height: 1; font-family: 'Segoe UI', monospace; letter-spacing: -1px; }
         .scrap-metric { color: #e67e22; }
 
-        /* ALERT PANEL */
         .alert-panel { background: #fff8e7; border-left: 5px solid #e67e22; padding: 18px 24px; border-radius: 20px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; font-weight: 600; }
         .alert-title { font-size: 1rem; font-weight: 800; }
         .alert-count { background: #e67e22; color: white; border-radius: 30px; padding: 4px 14px; font-weight: 800; }
 
-        /* TABS */
         .tabs { display: flex; gap: 16px; margin-bottom: 24px; border-bottom: 2px solid #e2edf2; padding-bottom: 12px; flex-wrap: wrap; }
         .tab-btn { background: none; border: none; padding: 12px 28px; font-size: 1.1rem; font-weight: 700; cursor: pointer; border-radius: 40px; color: #597a8b; transition: 0.2s; }
         .tab-btn.active { background: #1e6f5c; color: white; box-shadow: 0 4px 12px rgba(30,111,92,0.3); }
         .tab-btn:hover:not(.active) { background: #e0f2ef; color: #1e6f5c; }
 
-        /* TAB CONTENT */
         .tab-content { display: none; }
         .tab-content.active { display: block; }
 
-        /* FILTERS */
         .filters { display: flex; gap: 16px; margin-bottom: 24px; flex-wrap: wrap; align-items: center; }
         .filters select, .filters input { padding: 12px 24px; border-radius: 50px; border: 1px solid #cfdfe9; background: white; font-size: 0.9rem; font-weight: 500; }
+        .show-all-btn { background: #e67e22; color: white; border: none; padding: 12px 24px; border-radius: 50px; font-weight: 700; font-size: 0.9rem; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 8px; }
+        .show-all-btn:hover { background: #d35400; transform: scale(1.02); }
 
-        /* TABLES */
         .table-wrapper { overflow-x: auto; border-radius: 24px; max-height: 600px; overflow-y: auto; box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
         table { width: 100%; border-collapse: collapse; font-size: 0.85rem; min-width: 1050px; }
         th { background: #f4f9fc; padding: 16px 12px; text-align: left; font-weight: 800; font-size: 0.9rem; color: #1f5063; border-bottom: 2px solid #e2edf2; position: sticky; top: 0; z-index: 10; }
         td { padding: 12px 12px; border-bottom: 1px solid #ecf3f7; vertical-align: middle; }
 
-        /* BADGES & MISC */
         .stock-badge { display: inline-block; padding: 5px 14px; border-radius: 40px; font-weight: 700; font-size: 0.8rem; }
         .stock-high { background: #dff0ec; color: #1e6f5c; }
         .stock-low { background: #ffe6e5; color: #c24438; }
@@ -128,7 +117,7 @@
     <!-- Header -->
     <div class="header">
         <div>
-            <h1><i class="fas fa-tag"></i> Red Tag Summary </h1>
+            <h1><i class="fas fa-tag"></i> Red Tag Summary</h1>
             <h2>Sorting Event 2026 | April - June 2026</h2>
             <div class="last-updated" id="lastUpdated">Loading data...</div>
         </div>
@@ -193,7 +182,7 @@
     <!-- Tabs -->
     <div class="tabs">
         <button class="tab-btn active" data-tab="stock">📊 Stock by Category</button>
-        <button class="tab-btn" data-tab="transactions">📋 Transactions </button>
+        <button class="tab-btn" data-tab="transactions">📋 Transactions</button>
     </div>
 
     <!-- Stock Tab -->
@@ -205,6 +194,7 @@
                 <option value="low">🔴 Low (&lt;5)</option>
                 <option value="normal">✅ Normal (≥5)</option>
             </select>
+            <button class="show-all-btn" onclick="showAllStock()"><i class="fas fa-eye"></i> Show All</button>
         </div>
         <div class="table-wrapper">
             <table id="stockTable">
@@ -222,6 +212,7 @@
             <select id="categoryFilter"><option value="ALL">All Categories</option></select>
             <select id="yearFilter" onchange="filterTransactionTable()"><option value="ALL">All Years</option></select>
             <div class="sort-toggle" onclick="toggleSortOrder()"><i class="fas fa-sort-amount-down"></i> <span id="sortLabel">Latest First</span></div>
+            <button class="show-all-btn" onclick="showAllTransactions()"><i class="fas fa-eye"></i> Show All</button>
         </div>
         <div class="table-wrapper">
             <table id="transactionTable">
@@ -245,6 +236,24 @@
     let sortDescending = true;
     let isLoading = false;
     const TOTAL_DEPARTMENTS = 7;
+
+    // ========== "SHOW ALL" FUNCTIONS ==========
+    function showAllStock() {
+        document.getElementById('stockSearch').value = '';
+        document.getElementById('stockStatusFilter').value = 'ALL';
+        filterStockTable();
+    }
+
+    function showAllTransactions() {
+        document.getElementById('actionFilter').value = 'ALL';
+        document.getElementById('searchInput').value = '';
+        document.getElementById('categoryFilter').value = 'ALL';
+        document.getElementById('yearFilter').value = 'ALL';
+        sortDescending = true;
+        document.getElementById('sortLabel').innerText = 'Latest First';
+        document.querySelector('.sort-toggle').innerHTML = '<i class="fas fa-sort-amount-down"></i> <span id="sortLabel">Latest First</span>';
+        filterTransactionTable();
+    }
 
     function parseScrapValue(value) {
         if (!value || typeof value !== 'string') return 0;
@@ -620,7 +629,19 @@
         yrs.forEach(y => sel.innerHTML += `<option value="${y}">${y}</option>`);
     }
 
-    function toggleSortOrder() { sortDescending = !sortDescending; filterTransactionTable(); }
+    function toggleSortOrder() {
+        sortDescending = !sortDescending;
+        let label = document.getElementById('sortLabel');
+        let toggle = document.querySelector('.sort-toggle');
+        if (sortDescending) {
+            label.innerText = 'Latest First';
+            toggle.innerHTML = '<i class="fas fa-sort-amount-down"></i> <span id="sortLabel">Latest First</span>';
+        } else {
+            label.innerText = 'Oldest First';
+            toggle.innerHTML = '<i class="fas fa-sort-amount-up"></i> <span id="sortLabel">Oldest First</span>';
+        }
+        filterTransactionTable();
+    }
 
     window.showModal = (url) => { document.getElementById('modalImage').src = url; document.getElementById('imageModal').classList.add('show'); };
     window.closeModal = () => { document.getElementById('imageModal').classList.remove('show'); };
@@ -679,7 +700,6 @@
     document.getElementById('searchInput')?.addEventListener('keyup', filterTransactionTable);
 
     loadAllData();
-
 </script>
 </body>
 </html>

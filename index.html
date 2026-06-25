@@ -78,7 +78,8 @@
         .show-all-btn { background: #e67e22; color: white; border: none; padding: 12px 24px; border-radius: 50px; font-weight: 700; font-size: 0.9rem; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 8px; }
         .show-all-btn:hover { background: #d35400; transform: scale(1.02); }
 
-        .table-wrapper { overflow-x: auto; border-radius: 24px; max-height: 600px; overflow-y: auto; box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
+        /* 🔥 FIX: Removed max-height so the table shows ALL rows */
+        .table-wrapper { overflow-x: auto; border-radius: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
         table { width: 100%; border-collapse: collapse; font-size: 0.85rem; min-width: 1050px; }
         th { background: #f4f9fc; padding: 16px 12px; text-align: left; font-weight: 800; font-size: 0.9rem; color: #1f5063; border-bottom: 2px solid #e2edf2; position: sticky; top: 0; z-index: 10; }
         td { padding: 12px 12px; border-bottom: 1px solid #ecf3f7; vertical-align: middle; }

@@ -78,11 +78,79 @@
         .show-all-btn { background: #e67e22; color: white; border: none; padding: 12px 24px; border-radius: 50px; font-weight: 700; font-size: 0.9rem; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 8px; }
         .show-all-btn:hover { background: #d35400; transform: scale(1.02); }
 
-        /* 🔥 FIX: Removed max-height so the table shows ALL rows */
         .table-wrapper { overflow-x: auto; border-radius: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
         table { width: 100%; border-collapse: collapse; font-size: 0.85rem; min-width: 1050px; }
         th { background: #f4f9fc; padding: 16px 12px; text-align: left; font-weight: 800; font-size: 0.9rem; color: #1f5063; border-bottom: 2px solid #e2edf2; position: sticky; top: 0; z-index: 10; }
         td { padding: 12px 12px; border-bottom: 1px solid #ecf3f7; vertical-align: middle; }
+
+        /* ========== CARD VIEW (Show All) ========== */
+        .card-view-container {
+            display: none;
+            flex-wrap: wrap;
+            gap: 16px;
+            padding: 20px 0;
+        }
+        .card-view-container.active {
+            display: flex;
+        }
+        .data-card {
+            background: white;
+            border-radius: 16px;
+            padding: 16px 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            flex: 1 1 calc(33.333% - 16px);
+            min-width: 280px;
+            max-width: 100%;
+            border-left: 4px solid #1e6f5c;
+            transition: transform 0.2s;
+        }
+        .data-card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.12); }
+        .data-card .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #ecf0f1;
+            padding-bottom: 8px;
+        }
+        .data-card .card-no {
+            font-weight: 800;
+            color: #1e6f5c;
+            font-size: 0.85rem;
+        }
+        .data-card .card-action {
+            font-weight: 700;
+            padding: 2px 12px;
+            border-radius: 30px;
+            font-size: 0.75rem;
+        }
+        .data-card .card-action.in { background: #dff0ec; color: #1e6f5c; }
+        .data-card .card-action.out { background: #ffe6e5; color: #c24438; }
+        .data-card .card-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            font-size: 0.85rem;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .data-card .card-label { font-weight: 600; color: #4a6272; }
+        .data-card .card-value { font-weight: 500; color: #1a2c38; word-break: break-word; }
+        .data-card .card-photo img { width: 50px; height: 50px; object-fit: cover; border-radius: 8px; }
+        .data-card .card-scrap { color: #d35400; font-weight: 700; }
+
+        .back-to-table-btn {
+            background: #1e6f5c;
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 50px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-bottom: 16px;
+            display: none;
+        }
+        .back-to-table-btn:hover { background: #0e5243; }
 
         .stock-badge { display: inline-block; padding: 5px 14px; border-radius: 40px; font-weight: 700; font-size: 0.8rem; }
         .stock-high { background: #dff0ec; color: #1e6f5c; }
@@ -110,6 +178,7 @@
             .metric-value, .scrap-metric { font-size: 1.5rem; }
             .kpi-number { font-size: 1.6rem; }
             .header h1 { font-size: 1.5rem; }
+            .data-card { flex: 1 1 100%; }
         }
     </style>
 </head>
@@ -195,7 +264,6 @@
                 <option value="low">🔴 Low (&lt;5)</option>
                 <option value="normal">✅ Normal (≥5)</option>
             </select>
-            <button class="show-all-btn" onclick="showAllStock()"><i class="fas fa-eye"></i> Show All</button>
         </div>
         <div class="table-wrapper">
             <table id="stockTable">
@@ -214,12 +282,20 @@
             <select id="yearFilter" onchange="filterTransactionTable()"><option value="ALL">All Years</option></select>
             <div class="sort-toggle" onclick="toggleSortOrder()"><i class="fas fa-sort-amount-down"></i> <span id="sortLabel">Latest First</span></div>
             <button class="show-all-btn" onclick="showAllTransactions()"><i class="fas fa-eye"></i> Show All</button>
+            <button class="back-to-table-btn" id="backToTableBtn" onclick="backToTable()"><i class="fas fa-table"></i> Back to Table</button>
         </div>
-        <div class="table-wrapper">
+
+        <!-- Table View -->
+        <div id="tableView" class="table-wrapper">
             <table id="transactionTable">
                 <thead><tr><th>No.</th><th>Date</th><th>Name</th><th>Dept</th><th>Action</th><th>Item Type</th><th>Qty</th><th>Color</th><th>Size/Spec</th><th>Category</th><th>Scrap Value</th><th>Photo</th></tr></thead>
                 <tbody id="transactionTableBody"><tr><td colspan="12">Loading...</td></tr></tbody>
             </table>
+        </div>
+
+        <!-- Card View (Show All) -->
+        <div id="cardView" class="card-view-container">
+            <!-- Cards will be rendered here -->
         </div>
     </div>
 </div>
@@ -239,13 +315,8 @@
     const TOTAL_DEPARTMENTS = 7;
 
     // ========== "SHOW ALL" FUNCTIONS ==========
-    function showAllStock() {
-        document.getElementById('stockSearch').value = '';
-        document.getElementById('stockStatusFilter').value = 'ALL';
-        filterStockTable();
-    }
-
     function showAllTransactions() {
+        // Reset all filters
         document.getElementById('actionFilter').value = 'ALL';
         document.getElementById('searchInput').value = '';
         document.getElementById('categoryFilter').value = 'ALL';
@@ -253,7 +324,77 @@
         sortDescending = true;
         document.getElementById('sortLabel').innerText = 'Latest First';
         document.querySelector('.sort-toggle').innerHTML = '<i class="fas fa-sort-amount-down"></i> <span id="sortLabel">Latest First</span>';
+
+        // Show all data in card view
+        renderCardView(allTransactions);
+
+        // Hide table, show cards
+        document.getElementById('tableView').style.display = 'none';
+        document.getElementById('cardView').classList.add('active');
+        document.getElementById('backToTableBtn').style.display = 'inline-flex';
+
+        // Update the button text
+        let btn = document.querySelector('.show-all-btn');
+        btn.innerHTML = '<i class="fas fa-eye"></i> Show All (Cards)';
+    }
+
+    function backToTable() {
+        document.getElementById('tableView').style.display = 'block';
+        document.getElementById('cardView').classList.remove('active');
+        document.getElementById('backToTableBtn').style.display = 'none';
+        let btn = document.querySelector('.show-all-btn');
+        btn.innerHTML = '<i class="fas fa-eye"></i> Show All';
+        // Re-apply filters to show filtered table
         filterTransactionTable();
+    }
+
+    // ========== RENDER CARD VIEW ==========
+    function renderCardView(transactions) {
+        let container = document.getElementById('cardView');
+        container.innerHTML = '';
+
+        if (!transactions || transactions.length === 0) {
+            container.innerHTML = '<div style="width:100%; text-align:center; padding:40px; color:#597a8b; font-size:1.2rem;">No transactions found.</div>';
+            return;
+        }
+
+        transactions.forEach((t, i) => {
+            let card = document.createElement('div');
+            card.className = 'data-card';
+
+            let actionClass = t.action === 'IN' ? 'in' : 'out';
+
+            let photoHtml = '—';
+            if (t.action === 'IN' && t.photoUrl) {
+                photoHtml = `<img src="${t.photoUrl}" onclick="event.stopPropagation(); showModal('${t.photoUrl}')" onerror="this.style.display='none'" style="width:50px;height:50px;object-fit:cover;border-radius:8px;cursor:pointer;">`;
+            }
+
+            let scrapHtml = t.scrapValue ? `<span class="card-scrap"><i class="fas fa-dollar-sign"></i> ${t.scrapValue.toFixed(2)}</span>` : '—';
+
+            card.innerHTML = `
+                <div class="card-header">
+                    <span class="card-no">#${i+1}</span>
+                    <span class="card-action ${actionClass}">${t.action}</span>
+                </div>
+                <div class="card-row"><span class="card-label">Date:</span><span class="card-value">${t.timestamp || '?'}</span></div>
+                <div class="card-row"><span class="card-label">Name:</span><span class="card-value">${t.name || '-'}</span></div>
+                <div class="card-row"><span class="card-label">Department:</span><span class="card-value">${t.department || '-'}</span></div>
+                <div class="card-row"><span class="card-label">Item Type:</span><span class="card-value">${t.itemType}</span></div>
+                <div class="card-row"><span class="card-label">Qty:</span><span class="card-value">${t.qty}</span></div>
+                <div class="card-row"><span class="card-label">Color:</span><span class="card-value">${t.color || '—'}</span></div>
+                <div class="card-row"><span class="card-label">Size/Spec:</span><span class="card-value">${t.sizeSpec || '—'}</span></div>
+                <div class="card-row"><span class="card-label">Category:</span><span class="card-value">${t.category}</span></div>
+                <div class="card-row"><span class="card-label">Scrap Value:</span><span class="card-value">${scrapHtml}</span></div>
+                <div class="card-row"><span class="card-label">Photo:</span><span class="card-value card-photo">${photoHtml}</span></div>
+            `;
+            container.appendChild(card);
+        });
+    }
+
+    function showAllStock() {
+        document.getElementById('stockSearch').value = '';
+        document.getElementById('stockStatusFilter').value = 'ALL';
+        filterStockTable();
     }
 
     function parseScrapValue(value) {
@@ -654,7 +795,7 @@
         btn.disabled = true;
         btn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Loading...';
         try {
-            let url = "https://docs.google.com/spreadsheets/d/1h9BZHvzaOpPgtVWfw81eWFQqG9btCM8Z1fQPx9-jPPA/export?format=csv&gid=878903588"; //change the URL
+            let url = "https://docs.google.com/spreadsheets/d/1h9BZHvzaOpPgtVWfw81eWFQqG9btCM8Z1fQPx9-jPPA/export?format=csv&gid=878903588";
             let resp = await fetch(url);
             if (resp.ok) {
                 let csv = await resp.text();
